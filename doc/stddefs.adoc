@@ -1,0 +1,134 @@
+// -*- mode: adoc ; -*-
+
+:docbase: http://www.cplusplus.com/reference
+
+:ccimg: image:cc.png[]
+:tip: image:icons/tip.svg[tip, width="32", height="32"]
+
+// Icons
+ifdef::backend-slidy2[]
+:smile: image:images/icons/smiley[]
+:smile2: image:images/icons/smiley[]
+:warning: image:images/icons/warning[]
+endif::[]
+ifndef::backend-slidy2[]
+:smile: icon:smile-o[role="yellow"]
+:smile2: icon:smile-o[role="yellow", size=2x]
+:warning: icon:warning[role="red"]
+endif::[]
+
+:javaversion: 8
+:javadocbase: docs.oracle.com/javase
+
+:cppdocbase: en.cppreference.com/w/cpp
+
+:extractordir: .extractor
+:extractorncdir: .extractornc
+:srcbase: src
+:srclang: cpp
+:srcext: 
+:srcdir: ppc00
+
+// Admonitions:
+// NOTE		Definitionen
+// IMPORTANT	wichtige Aussage
+// TIP			wichtiger Hinweis
+// CAUTION	wichtige Warnung
+// WARNING	wichtige Ausgabe eines Programms
+
+{counter2:snippet:0}
+{counter2:output:0}
+{counter2:listing:0}
+{counter2:shell:0}
+{counter2:plantuml:0}
+{counter2:diagram:0}
+
+// user defined
+:snippet-caption: Quellcodeabschnitt
+:output-caption: Ausgabe
+:shell-caption: Kommando
+:plantuml-caption: UML-Graph
+:diagram-caption: Diagramm
+
+// build-in
+:listing-caption: Quelltext
+:table-caption: Tabelle
+:figure-caption: Bild
+
+// Doku
+:stdstring: http://{cppdocbase}/string/basic_string[std::string]
+:stdvector: http://{cppdocbase}/container/vector[std::vector]
+:stdlist: http://{cppdocbase}/container/list[std::list]
+:stdround: http://en.cppreference.com/w/cpp/numeric/math/round[std::round]
+:stdmath: http://en.cppreference.com/w/cpp/numeric/math[mathematische Funktionen]
+:stdsqrt: http://en.cppreference.com/w/cpp/numeric/math/sqrt[std::sqrt]
+:stdhypot: http://en.cppreference.com/w/cpp/numeric/math/hypot[std::hypot]
+:stdto_string: http://en.cppreference.com/w/cpp/string/basic_string/to_string[std::to_string]
+:stdofstream: http://en.cppreference.com/w/cpp/io/basic_ofstream[std::ofstream]
+:stdopltlt: http://en.cppreference.com/w/cpp/io/basic_ostream/operator_ltlt[std::operator<<]
+:stdcout: http://en.cppreference.com/w/cpp/io/cout[std::cout]
+:stdmake_unique: http://en.cppreference.com/w/cpp/memory/unique_ptr/make_unique[std::make_unique]
+:stdmake_shared: http://en.cppreference.com/w/cpp/memory/shared_ptr/make_shared[std::make_shared]
+:stdmemory: http://en.cppreference.com/w/cpp/memory[dynamische Speicherverwaltung]
+:stdunique_ptr: http://en.cppreference.com/w/cpp/memory/unique_ptr[std::unique_ptr]
+:stdshared_ptr: http://en.cppreference.com/w/cpp/memory/shared_ptr[std::shared_ptr]
+:stdstringstream: http://en.cppreference.com/w/cpp/io/basic_stringstream[std::stringstream]
+:stdcout: http://en.cppreference.com/w/cpp/io/cout[std::cout]
+:stdcontainer: http://en.cppreference.com/w/cpp/container[Container]
+
+:langscope: http://{cppdocbase}/language/scope[scope]
+:langusing: http://{cppdocbase}/language/using_declaration[using]
+:langdefinition: http://{cppdocbase}/language/definition[definition]
+:langtypes: http://en.cppreference.com/w/cpp/language/types[Typen]
+:langstringliteral: http://en.cppreference.com/w/cpp/language/string_literal[String-Literal]
+:langlifetime: http://en.cppreference.com/w/cpp/language/lifetime[Lebensdauer]
+:langstorage: http://en.cppreference.com/w/cpp/language/storage_duration[Speicherklasse]
+:langnew: http://en.cppreference.com/w/cpp/language/new[new]
+:langraii: http://en.cppreference.com/w/cpp/language/raii[RAII]
+:langmemberaccess: http://en.cppreference.com/w/cpp/language/operator_member_access[Elementzugriffsoperatoren]
+:langprecedence: http://en.cppreference.com/w/cpp/language/operator_precedence[Vorrangregeln]
+:langnullptr: http://en.cppreference.com/w/cpp/language/nullptr[nullptr]
+:langcstring: http://en.cppreference.com/w/cpp/string/byte[C-String]
+:langrangefor: http://en.cppreference.com/w/cpp/language/range-for[range-for]
+:langfor: http://en.cppreference.com/w/cpp/language/for[for]
+:langconcepts: http://en.cppreference.com/w/cpp/concept[Anforderungen]
+
+// Abkürzungen
+:qt: http://www.qt.io[Qt]
+:qtsdkonline: http://www.qt.io/download-open-source[QtSDK-Online-Installer]
+:qtsdkoffline: http://www.qt.io/download-open-source/#section-3[QtSDK-Offline-Installer]
+:qtcreator: http://doc.qt.io/qtcreator/index.html[QtCreator]
+:adoc: http://www.methods.co.nz/asciidoc[AsciiDoc]
+:adoctor: http://asciidoctor.org[AsciiDoctor]
+
+:extractor: https://sourceforge.net/p/osscourse/git/ci/master/tree/doc[extractor]
+
+:svg: http://www.w3.org/TR/SVG/Overview.html[SVG]
+:svgcircle: http://www.w3.org/TR/SVG/shapes.html#CircleElement[circle]
+:svgline: http://www.w3.org/TR/SVG/shapes.html#LineElement[line]
+
+:gcc: https://gcc.gnu.org[GCC]
+:make: http://www.gnu.org/software/make/manual/make.html[make]
+
+:boost: http://www.boost.org[Boost]
+:boostfs: http://www.boost.org/doc/libs/1_58_0/libs/filesystem/doc/index.htm[Boost-Filesystem]
+:boostsys: http://www.boost.org/doc/libs/1_58_0/libs/system/doc/index.html[Boost-System]
+:boostregex: http://www.boost.org/doc/libs/1_58_0/libs/regex/doc/html/index.html[Boost-Regex]
+
+:astyle: http://astyle.sourceforge.net[AStyle]
+
+:libmagic: http://man7.org/linux/man-pages/man3/libmagic.3.html[Magic Number Recognition Library]
+
+:srchilite: http://www.gnu.org/software/src-highlite[GNU Source Highlight]
+
+:clang: http://clang.llvm.org[CLang]
+:cppdoc: http://www.cplusplus.com[CPlusPlus]
+:cppref: http://en.cppreference.com[CppRef]
+:cppstdlib: http://de.wikipedia.org/wiki/C%2B%2B-Standardbibliothek[Standardbibliothek]
+:cpp11: http://en.wikipedia.org/wiki/C++11[C++11]
+:isocpp: https://isocpp.org[IsoCpp]
+:cppfaq: http://www.parashift.com/c++-faq[CppFaq]
+
+:cpp: C++
+
+// end

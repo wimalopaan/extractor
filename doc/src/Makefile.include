@@ -1,0 +1,181 @@
+# -*- mode: makefile-gmake; -*-
+#
+# ++C - C++ introduction
+# Copyright (C) 2013, 2014, 2015, 2016 Wilhelm Meier <wilhelm.meier@hs-kl.de>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+export LC_ALL=C
+
+CXX = clang++
+#CXX = g++
+
+#EXTRACTOR = $(HOME)/Projekte/osscourse-svn/extract/extractor
+EXTRACTOR = ../../../extract/extractor
+EXTRACTDIR = .extractor
+EXTRACTDIRNC = .extractornc
+
+SRCHI = source-highlight
+
+ifeq (${CXX}, clang++)
+ CXXFLAGS += -g -Wall -Wextra -Wconversion -pedantic -std=c++1z # -fsanitize=undefined
+ LDFLAGS += -fsanitize=undefined
+else
+ CXXFLAGS += -g -Wall -Wextra -Wconversion -pedantic -std=c++14 -fdiagnostics-color
+endif
+
+ifdef NDEBUG
+ CPPFLAGS += -DNDEBUG
+endif
+
+#LDLIBS += -lstdc++ -lboost_date_time -lboost_unit_test_framework
+LDLIBS += -lstdc++ -lm
+
+all: $(targets) ${subdirs}
+
+# unechte Ziele (dann kein Dateikonflikt)
+.PHONY: all clean subclean subdirs ${subdirs}
+
+subdirs: ${subdirs}
+
+${subdirs}:
+	@if [ -d $@ ]; then ${MAKE} -C $@ all; fi
+
+# wirldcards werden direkt nur als Vorbedingungen ausgewertet, daher hier explizit Funktionsaufruf
+ccsources = $(wildcard *.cc)
+headers   = $(wildcard *.h)
+jsources   = $(wildcard *.java)
+# patsubst: pattern-substitution, % ist bel. string
+ccdeps    = $(patsubst %.cc, %.d, $(ccsources))
+objects   = $(patsubst %.cc, %.o, $(ccsources))
+
+jhtml = $(patsubst %.java, %.java.html, $(jsources))
+cchtml = $(patsubst %.cc, %.cc.html, $(ccsources))
+hhtml = $(patsubst %.h, %.h.html, $(headers))
+
+shtml: $(jhtml) $(cchtml) $(hhtml)
+
+#objects   += ../lib/simpletest.o ../lib/tracer.o ../lib/util.o ../lib/optional.o
+
+# Erzeugt die dependency-includes (sed-Kommando um die %.d-Datei ebenfalls als Ziel hinzuzufuegen)
+# z.B.: hello.o hello.d: hello.cc hello.h
+%.d: %.cc
+	$(CXX) -MM -MG $(CXXFLAGS) $< | sed 's/$*\.o/& $@ $<.extract/g' > $@
+
+%.o: %.cc
+	 $(COMPILE.cc) $(STDFLAGS) $(OUTPUT_OPTION) $(shell pwd)/$<
+
+%.memcheck: %
+	valgrind --tool=memcheck --num-callers=20 --leak-check=yes --leak-resolution=high ./$< > $@ 2>&1
+
+%.cc.extract: %.cc
+	$(EXTRACTOR) -lcpp -aA2 -o$@ -d$(EXTRACTDIR) $<
+
+%.h.extract: %.h
+	$(EXTRACTOR) -lcpp -aA2 -o$@ -d$(EXTRACTDIR) $<
+
+%.java.extract: %.java
+	$(EXTRACTOR) -ljava -aA2 -o$@ -d$(EXTRACTDIR) $<
+
+%.cc.extractnc: %.cc
+	$(EXTRACTOR) -lcpp -aA2 --sc -d$(EXTRACTDIRNC) -o$@ $<
+
+%.h.extractnc: %.h
+	$(EXTRACTOR) -lcpp -aA2 --sc -d$(EXTRACTDIRNC) -o$@ $<
+
+%.java.extractnc: %.java
+	$(EXTRACTOR) -ljava -aA2 --sc -d$(EXTRACTDIRNC) -o$@ $<
+
+%.cc.html: %.cc
+	$(EXTRACTOR) -x --eb --io $< | $(SRCHI) -scpp > $@
+
+%.h.html: %.h
+	$(EXTRACTOR) -x --eb --io $< | $(SRCHI) -scpp > $@
+
+%.java.html: %.java
+	$(EXTRACTOR) -x --eb --io $< | $(SRCHI) -sjava > $@
+
+%.out: %.class
+	java $* $(PARGS) > $@
+
+%.out: %
+	./$< $(PARGS) > $@
+
+%.aout: %
+	echo -n ".{output-caption} {counter:output}. Ausgabe des Programms: \`" > $@
+	echo -n $< >> $@
+	echo "\`" >> $@
+	echo "[role=\"output\"]" >> $@
+	echo "...." >> $@
+	-SIMPLETEST=${SIMPLETEST} ./$< $(PARGS) >> $@ 2>&1
+	echo "...." >> $@
+
+%.aout2: %
+	echo -n ".{output-caption} {counter:output}. Ausgabe des Programms: \`" > $@
+	echo -n $< >> $@
+	echo "\`" >> $@
+	echo "[role=\"output\"]" >> $@
+	echo "...." >> $@
+	-SIMPLETEST=${SIMPLETEST} ./$< $(PARGS) >> $@ 2>/dev/null
+	echo "...." >> $@
+
+%.valgrind: %
+	echo -n ".{output-caption} {counter:output}. Speicheranalyse des Programms: \`" > $@
+	echo -n $< >> $@
+	echo "\`" >> $@
+	echo "[role=\"output\"]" >> $@
+	echo "...." >> $@
+	-SIMPLETEST=${SIMPLETEST} valgrind ./$< $(PARGS) 2>> $@ 1>/dev/null
+	echo "...." >> $@
+
+%.aout: %.class
+	echo -n ".{output-caption} {counter:output}. Ausgabe des Programms: \`" > $@
+	echo -n $< >> $@
+	echo "\`" >> $@
+	echo "[role=\"output\"]" >> $@
+	echo "...." >> $@
+	java $* $(PARGS) >> $@ 2>&1
+	echo "...." >> $@
+
+%.class: %.java
+	 javac $(shell pwd)/$<
+
+%.png: %.svg
+	rsvg-convert $< > $@
+
+subclean:
+	@for d in ${subdirs}; do \
+		if [ -d $$d ]; then \
+			${MAKE} -C $$d clean; \
+		fi \
+	done
+
+clean: subclean
+	$(RM) $(targets) $(targetsmemcheck)
+	$(RM) *~
+	$(RM) a.out
+	$(RM) a.exe
+	$(RM) $(ccdeps)
+	$(RM) $(objects)
+	$(RM) *.class
+	$(RM) *.out
+	$(RM) *.memcheck
+	$(RM) *.html
+	$(RM) *.extract
+	$(RM) *.svg
+	-$(RM) -rf $(EXTRACTDIR)
+	-$(RM) -rf $(EXTRACTDIRNC)
+
+-include $(ccdeps)

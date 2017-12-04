@@ -1,0 +1,16 @@
+* Text bei der Ausblendung von Snippets angeben
+
+//[test -a
+...
+//[a : Text der angezeigt werden soll, wenn Snippet a ausgeblendet wird
+...
+//]
+...
+//]
+
+
+* Vervorhebung von einzelnen Zeilen einschaltbar machen
+
+int x = 0; //! <> mit CalloutText
+
+int y; //!

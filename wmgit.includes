@@ -1,0 +1,11 @@
+extract
+libwm
+libwm/folly
+libwm/folly/detail
+.
+doc
+test
+/usr/include
+doc/src/example01
+doc/src/example02
+doc/src

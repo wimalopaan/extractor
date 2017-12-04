@@ -1,0 +1,606 @@
+// -*- mode: adoc ; fill-column: 120 -*-
+= Extractor
+Wilhelm Meier <wilhelm.meier@hs-kl.de>
+:lang: de
+:toc: left
+:toc-title: Inhalt
+:toclevels: 5
+:numbered:
+:sectnumlevels: 5
+:src_numbered: 
+:icons: font
+:figure-caption: Abbildung
+:keywords: asciidoctor
+:description: extractor
+:title: Extractor
+:sectanchors:
+:sectlinks:
+:experimental:
+:copyright: Wilhelm Meier
+:duration: 90
+//:source-highlighter: coderay
+:coderay-css: style
+:source-highlighter: pygments
+:pygments-css: class
+:status:
+:menu:
+:navigation:
+:split:
+:goto:
+:blank:
+:deckjs_theme: swiss
+:showtitle:
+:docinfo1:
+:stem:
+:deckjs_transition: horizontal-slide
+//:stylesdir: ./css
+//:stylesheet: wm2.css
+//:scriptsdir: ./js
+:customcss: css/deckjs.css 
+:revealjs_theme: beige
+:revealjs_slidenumber: true
+// for attributes in link:[] macro like link:xxx[window="_blank"]
+:linkattrs:
+
+include::stddefs.adoc[]
+
+[.lead]
+`Extractor`: a source code extractor
+
+== Overview
+
+`Extractor` is a tool for extracting information from `C++` or `Java` source files.
+
+If you write technical documents like program documentation, how-to's (like this) or other mostly
+software oriented documents, it is a very commen requirement to show some source-code. To limit the chances 
+of documention errors, these source-code examples should be _real world examples_. This means, that they
+should be extracted from real code examples or production code and they should not be cut-and-pasted into
+the document or originally be written _in_ the document. This leads to untested and unchecked examples with a 
+high risk of being wrong (or outdated).
+
+{adoctor} is capable of including source code files into the document.
+
+But real world examples are mostly too long to be fully included. It would be much more readable if you can focus
+on the important parts of the source code and leave unrelevant parts out. 
+This is what {extractor} is for: 
+
+* extracting parts (_snippets_) from real world source code.
+* omitting lines of the source code
+* generating auto-callouts from comments of the source-code
+* highlighting parts of the source-code
+
+== Prerequisites
+
+=== Compiler
+
+You need a `$$C++$$14`-capable `$$C++$$` compiler (both {gcc} and {clang} will do).
+
+=== Libraries
+
+The following system libraries are required:
+
+* from {boost}: {boostregex} (_header-only_ library)
+* {astyle}
+* {libmagic}
+
+=== Tools
+
+Not strictly needed, but helpfull: {srchilite}.
+
+And of course: {adoctor}
+
+== Installation
+
+=== Download the source
+
+Download the souce from http://sourceforge.net/p/osscourse/git/ci/master/tree[sourceforge].
+
+=== Build 
+
+On Linux you simply type:
+
+.{shell-caption}{counter:shell}.
+[source, shell]
+----
+$ make all
+----
+
+=== Install
+
+At the moment there is no special install step: you have to run `extractor` from the source directory, where it 
+has been built. Or you can manually copy it to other places, because its internal library has been
+statically linked during build.
+
+== Usage
+
+The following example will show the basic idea behind {extractor}.
+
+=== Simple Example
+
+:srcdir: example01
+
+Suppose you'll document the following very simple `C++` example:
+
+include::{srcbase}/{srcdir}/{extractordir}/test.cc.all[]
+
+It could be that you want to describe the portion of the souce file where the `include` directives are 
+in a special way. Therefore it would be nice to _extract_ that part of the file like:
+
+include::{srcbase}/{srcdir}/{extractordir}/test.cc.include[]
+
+In a later section of your documentation you want to emphasize the `int main()` function:
+
+include::{srcbase}/{srcdir}/{extractordir}/test.cc.main[]
+
+For this to be possible without copying manually anything from your sources you have to _mark_ these
+parts directly _in_ your sources. These parts are called <<snippets, snippets>>.
+
+.A simple source snippet definition
+[source,cpp,indent=0]
+----
+//[<name> <1>
+...
+//] <2>
+----
+<1> Begin of snippet `name`
+<2> End of snippet `name`
+
+[CAUTION]
+Source snippets resemble the {adoctor} feature of include tags, but they have to be _strictly nested_.
+They *must not* overlap!
+
+With this you can _annotate_ your _real_ source code with the neccessary snippet definitions: 
+
+.The file link:{srcbase}/{srcdir}/test.cc.html[`test.cc`,window="_new"] with the source snippets `include` and `main`
+[source,cpp,indent=0]
+----
+include::{srcbase}/{srcdir}/test.cc[]
+----
+
+Then you run the `extractor` for your file link:{srcbase}/{srcdir}/test.cc.html[test.cc,window="_new"]:
+
+.{shell-caption}{counter:shell}.
+[source, shell]
+----
+$ extractor test.cc
+----
+
+The outcome from this is the file link:{srcbase}/{srcdir}/test.extractor[test.extractor] with the contents:
+
+.The Content of the snippet database file 
+[source, snippetdatabase]
+----
+include::{srcbase}/{srcdir}/test.extractor[]
+----
+
+At the moment this file isn't very useful (but if you want to <<make, automate>> building the whole documenation, 
+this file will become very handy), but if you look carefully into the directory of the file `test.cc` 
+you'll find a newly create directory named `.extractor`:
+
+[role="output"]
+....
+include::{srcbase}/{srcdir}/contents[]
+....
+
+These files contain the snippets, e.g. the file `test.cc.main` obviously contains the snippet `main` of 
+file `test.cc`. The file `test.cc.all` contains the _full_ file `test.cc` but without the snippet definitions.
+
+In your {adoctor} documentation files you can include these snippets files.
+Especially usefull are defintions of some _attributes_ like `srcbase`, `srcdir` and `extractdir`:
+
+[source,asciidoc,indent=0]
+----
+ include::{srcbase}/{srcdir}/{extractordir}/test.cc.main[]
+----
+
+The contents of the snippet-file is asciidoc:
+
+[source,asciidoc]
+....
+include::{srcbase}/{srcdir}/{extractordir}/test.cc.main[]
+....
+
+[TIP]
+--
+Please note that this file contains `asciidoc`-syntax, e.g. this simple case generates a caption with a 
+link to the file containing the displayed snippet. If you click on the link, you should get a new browser
+window with the original code highlighted via `source-highlight` as a `html`-file (s.a. <<make>>).
+
+If the snippet contains _auto-callouts_ these will also be collected into the snippet file (s.a. <<callouts>>).
+--
+
+If you use the above `include`-macro in your documentation you'll get the following result:
+
+include::{srcbase}/{srcdir}/{extractordir}/test.cc.main[]
+
+Ok, that's the simple story.
+
+=== Source Annotations
+
+:srcdir: example02
+
+There are several source annotations which `extractor` understands: _snippets_ (simple or compound), 
+_omitted_ lines, _auto_ callouts and _highlighting_ (marking).
+
+[[snippets]]
+==== Source snippets
+
+Source snippets are divided into _simple_ and _compound_ snippets.
+
+===== Simple snippets
+
+As stated above simple snippets are defined by the special comments in the source files. Snippets _must not_ be
+overlapping, but they can (and usually should) be nested:
+
+[[examplenested]]
+.A simple source snippet definition
+[source,cpp,indent=0]
+----
+//[<snippet1> <1>
+...
+//[<snippet2> <2>
+...
+//] <3>
+...
+//] <4>
+----
+<1> Begin of `snippet1`
+<2> Begin of `snippet2`
+<3> End of `snippet2`
+<4> End of `snippet1`
+
+The following source code gives an example of two nested snippets with names `pragma` and `Abc`:
+
+.The file link:{srcbase}/{srcdir}/nested.cc.html[`nested.cc`,window="_new"]
+[source,cpp,indent=0]
+----
+include::{srcbase}/{srcdir}/nested.cc[]
+----
+
+To include them use the following line in your `adoc`-file for the _outer_ snippet with name `pragma`:
+
+[source,asciidoc,indent=0]
+----
+ include::{srcbase}/{srcdir}/{extractordir}/nested.cc.pragma[]
+----
+
+use the next line for the _inner_ snippet with name `Abc':
+
+[source,asciidoc,indent=0]
+----
+ include::{srcbase}/{srcdir}/{extractordir}/nested.cc.Abc[]
+----
+
+and you get for the _outer_ snippet `pragma`:
+
+include::{srcbase}/{srcdir}/{extractordir}/nested.cc.pragma[]
+
+[NOTE]
+Please note that the definition lines of the inner snippet `Abc` are excluded.
+
+or for the _inner_ snippet `Abc`:
+
+include::{srcbase}/{srcdir}/{extractordir}/nested.cc.Abc[]
+
+===== Continuation of simple snippets
+
+Simple snippets can be continued as in the following example:
+
+.The file link:{srcbase}/{srcdir}/simple.cc.html[`simple.cc`,window="_new"] with simple snippet
+[source,cpp,indent=0]
+----
+include::{srcbase}/{srcdir}/simple.cc[]
+----
+
+This will produce a continued snippet:
+
+include::{srcbase}/{srcdir}/{extractordir}/simple.cc.out[]
+
+[NOTE]
+--
+Please note that the text _between_ the parts ot the continued snippet 
+(here: `// ... lines omitted ...`) can be omitted (see <<options>>). If you do that using the 
+option `--sm` you get the following output:
+
+include::{srcbase}/{srcdir}/.ex2/simple.cc.out[]
+--
+
+[TIP]
+Please see also <<missing>>.
+
+===== Compound snippets 
+
+Sometimes it is useful to _exclude_ one or more _nested_ snippets from an _outer_ snippet. 
+This can be done by _subtracting_ one or more of the nested snippets from the outer one. You can use 
+the follwing compund snippet definition syntax:
+
+.Defining a compound snippet 
+[source,cpp,indent=0]
+----
+//[outer -inner <1>
+
+//[inner <2>
+
+//] <3>
+
+//] <4>
+----
+<1> Defintion of the snippet `outer` _without_ the nested snippet `inner`
+<2> Defintion of the nested snippet `inner` 
+<3> End of snippet `inner`
+<4> Ende of snippet `outer` 
+
+As said <<examplenested,above>> you can freely nest the snippets as in the following example:
+
+.The file link:{srcbase}/{srcdir}/test.cc.html[`test.cc`,window="_new"] with simple and compound source snippets
+[source,cpp,indent=0]
+----
+include::{srcbase}/{srcdir}/test.cc[]
+----
+
+.Snippet called `all`
+[TIP]
+There is one implicitly defined snippet called `all`. It includes the _whole_ source file but (normally) with
+the snippet definitions themselves removed.
+
+If you include the snippet `all` you get the whole file `test.cc` with the snippet definition lines removed:
+
+include::{srcbase}/{srcdir}/{extractordir}/test.cc.all[]
+
+The snippet `main` displays as follows:
+
+include::{srcbase}/{srcdir}/{extractordir}/test.cc.main[]
+
+The snippet `mainret` excludes the inner snippet `out` from the outer snippet `main`. So you get 
+the following result:
+
+include::{srcbase}/{srcdir}/{extractordir}/test.cc.mainret[]
+
+[NOTE]
+The excluded snippet itself is displayed as `// ...` by default. 
+But you can customize that (see <<extexts>>).
+
+The same is true for snippet `mainout` subtracting `ret`:
+
+include::{srcbase}/{srcdir}/{extractordir}/test.cc.mainout[]
+
+For maximum flexibility you can remove more than one inner snippet from an outer snippet. This
+is shown with snippet `mainx`:
+
+include::{srcbase}/{srcdir}/{extractordir}/test.cc.mainx[]
+
+[[extexts]]
+===== Using _exclude_ Texts
+
+As default a text like a {cpp}-comment is show in case a snippet is excluded from another, outer snippet. 
+If want to show some special text in this case use a _exclude_-text defintion.
+
+.Defining exclude text
+[source,cpp,indent=0]
+----
+//[outer -inner <1>
+
+//[inner : The alternative exclude text <2>
+
+//] 
+//]
+----
+<1> Defintion of the snippet `outer` _without_ the nested snippet `inner`
+<2> The nested snippet `inner` with an alternative _exclude_-text `The alternative exclude text`
+
+Below is an example defining _exclude_-texts:
+
+.The file link:{srcbase}/{srcdir}/test2.cc.html[`test2.cc`,window="_new"] with exclude texts
+[source,cpp,indent=0]
+----
+include::{srcbase}/{srcdir}/test2.cc[]
+----
+
+With these _exclude_texts the snippets are display as follows:
+
+include::{srcbase}/{srcdir}/{extractordir}/test2.cc.mainout[]
+
+include::{srcbase}/{srcdir}/{extractordir}/test2.cc.mainret[]
+
+
+[[omitted]]
+==== Omitted lines
+
+Sometimes individual lines are distracting the readers attention and these lines should be excluded 
+from the source shown. For this purpose {extractor} can marked lines.
+
+Individual lines can be omitted with a special marker `//-`:
+
+.The file link:{srcbase}/{srcdir}/omit.cc.html[`omit.cc`,window="_new"] with omitted lines
+[source,cpp,indent=0]
+----
+include::{srcbase}/{srcdir}/omit.cc[]
+----
+
+Below you see the snippet `main` with some lines omitted:
+
+include::{srcbase}/{srcdir}/{extractordir}/omit.cc.main[]
+
+[[callouts]]
+==== Auto-Callouts
+
+A really nice feature are the _auto-callouts_. 
+
+_Callouts_ in general are a really good way to annotate portions of some code. But there are problems using
+the normal way to define _callouts_: 
+
+* If you use the _ include_-macro then you have to split the callout into two places: the source file 
+and the documenation file.
+* The _callout_-text will only be visible in the documentation not in the source file.
+* Using snippets together with callouts one get problems with the numbering of the callouts.
+
+These problems are avoided using the so called _auto-callouts_:
+
+* These are fully specified in the source file, so the reader of the original source file still gets the 
+callout text.
+* There is only one place to define the callout: the source file.
+* All auto-callouts are automatically numbered appropriate to the snippets included.
+
+In the following example we have two auto-callouts. One just omits the _number_ of the callout 
+writing:
+
+ int x = 0; // <> Initialization of _variable_ `x` with value `0`
+
+
+.The file link:{srcbase}/{srcdir}/callout.cc.html[`callout.cc`,window="_new"] with _auto-callouts_.
+[source,cpp,indent=0]
+----
+include::{srcbase}/{srcdir}/callout.cc[]
+----
+
+With _auto-callouts_ the following snippet file will be generated. As you can see, the callouts are numbered and the 
+text of the source comments are transfered to the callout-definition. 
+
+.Snippet file ready for inclusion into the document
+[source,asciidoc]
+....
+include::{srcbase}/{srcdir}/{extractordir}/callout.cc.main[]
+....
+
+[TIP]
+Using this feature you can leave the text for the callouts bundled with the source itself. Therefore the code
+author sees the very same callout-text in the comment as the documentation reader.
+
+include::{srcbase}/{srcdir}/{extractordir}/callout.cc.main[]
+
+If you include different snippets the callout numbering will be adapted:
+
+include::{srcbase}/{srcdir}/{extractordir}/callout.cc.a[]
+
+include::{srcbase}/{srcdir}/{extractordir}/callout.cc.b[]
+
+include::{srcbase}/{srcdir}/{extractordir}/callout.cc.c[]
+
+[TIP]
+Please see also <<missing>>.
+
+[[highlight]]
+==== Highlighting (Marking)
+
+[CAUTION]
+There is a bug here: this feature doesn't work if {astyle} is formatting the output.
+
+include::{srcbase}/{srcdir}/{extractordir}/hlite.cc.all[]
+
+[[astyle]]
+=== Formatting
+
+[[language]]
+=== Language support
+
+
+[[options]]
+=== Command Line Options
+
+`extractor` has the following commandline option:
+
+.The options of `extractor`
+[role="output"]
+....
+include::{srcbase}/{srcdir}/help[]
+....
+
+[horizontal]
+Option:: Description
+`-h`:: help message
+`-v`:: be more verbose
+`--se`::  (default): don't print empty lines in snippet output to be more condensed.
+`--ee`:: opposite of above
+`--sb`:: (default): don't include block-comments 
+(like `/* ...*/` for `C++` and `Java`) in snippet output. This is especially usefull to exclude  _copyright_ or 
+_license_ headers in sources files.
+`--eb`:: opposite of above
+`--ss`:: (default): don't include the snippets definition lines themselves into the snippet files.
+`--es`:: opposite of above
+`--sc`:: (default): don't include _callouts_ (see <<callouts>>) into the snippet files
+`--ec`:: opposite of above
+`--io`:: include omitted lines (see <<omitted>>) 
+`-l`:: set the language (see {adoctor})
+`-a`:: set additional options for {astyle}
+`-o`:: set the output filename for the snippet database file  (default: `<basefilename>.extract`)
+`-d`:: set the directory for generated snippet files (default: `.extractor`)
+`-x`:: don't generate snippet files, just pass the source through `extractor` to e.g. exclude the snippet definiiton 
+lines 
+
+== Other useful tools
+
+=== Automating the documentation process
+
+The snippets are best generated when building the source itself: if the source changes the snippets must
+chance too. Automating this whole process would be best.
+
+[[make]]
+==== Using `make` to generate to snippets 
+
+{make} is a content-agnostik build tool, therefore it could be used for automating the documentation generating process.
+
+If the project is already build with GNU {make}, then with some additional _rules_ all needed information can be
+generated very simple.
+
+.Rules for `make` (Makefile) to generate the source snippets and the snippet-database file 
+[source,make,indent=0]
+----
+EXTRACTOR = extractor # <1> 
+EXTRACTDIR = .extractor # <2>
+
+%.cc.extract: %.cc # <3>
+	$(EXTRACTOR) -lcpp -aA2 -o$@ -d$(EXTRACTDIR) $< # <4>
+
+%.h.extract: %.h # <5>
+	$(EXTRACTOR) -lcpp -aA2 -o$@ -d$(EXTRACTDIR) $<
+
+%.java.extract: %.java # <6>
+	$(EXTRACTOR) -ljava -aA2 -o$@ -d$(EXTRACTDIR) $<
+----
+<1> The `EXTRACTOR`-variable contains the _path_ to the `extractor`-executable
+<2> Use this directory to put the snippets in
+<3> Rule to generate the snippets-database file (e.g. `test.cc.extract`) from a source file (e.g. `test.cc`)
+<4> Use `cpp` as language setting an `A2`-syling for `astyle`
+<5> Same rule for header files 
+<6> Same rule for `java`-files 
+
+With the following rules you can generate the needed `html`-files for the links in the snippet-files: 
+
+.Rules for `make` (Makefile) to generate highlighted versions of the source files using GNU `source-highlight`
+[source,make,indent=0]
+----
+SRCHI = source-highlight # <1>
+
+%.cc.html: %.cc
+	$(EXTRACTOR) -x --eb --io $< | $(SRCHI) -scpp > $@ <2>
+
+%.h.html: %.h
+	$(EXTRACTOR) -x --eb --io $< | $(SRCHI) -scpp > $@
+
+%.java.html: %.java
+	$(EXTRACTOR) -x --eb --io $< | $(SRCHI) -sjava > $@
+----
+<1> `source-highlight` is used to produce the `html` versions of the source files 
+<2> `extractor` with special options is used to eliminate the snippet definitions but include otherwise omitted lines
+
+[[kate]]
+=== Kate
+
+[[katesyntax]]
+==== AsciiDoc syntax definition 
+
+[[katesnippets]]
+==== Text snippets
+
+=== Editor integration
+
+[[missing]]
+== Missing Features
+
+As you work with {extractor} you'll surely notice, that there are (many) missing features. The main reason for this, 
+that these feature aren't relevant for me at the moment. If you need one of the following, it should be simple to
+add them. Please inform me if you are working on creating a patch.
+
+* setting the text between continued snippets (`// .. lines omitted ...`).
+* customization of the texts shown in captions if snippets are used.
+* customization of the texts shown in captions if omitted lines are used.
