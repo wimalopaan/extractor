@@ -1,0 +1,251 @@
+/*
+ * ++C - C++ introduction
+ * Copyright (C) 2013, 2014, 2015, 2016 Wilhelm Meier <wilhelm.meier@hs-kl.de>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <regex>
+#include <cassert>
+#include <experimental/filesystem>
+using namespace std::experimental;
+#include "cppextractor.h"
+#include "asciidocsnippetfilegenerator.h"
+#include "commandlineparser.h"
+#include "clara.hpp"
+using namespace clara;
+#include "filemagic.h"
+#include "tracer.h"
+
+#include "docopt.h"
+// todo: add option to generate link to  source-file
+
+static const char usage[] =
+        R"(extractor
+        usage:
+        )";
+int main(int argc, const char** argv) {
+    bool skipEmptyLines = true;
+    bool skipBlockComments = true;
+    bool skipSnippetDefs = true;
+    bool skipCallouts = false;
+    bool skipMultiSnippetDelimiter = true;
+    bool skipExcludeMarker = true;
+    bool skipHighlighting = false;
+    bool enableEmptyLines = false;
+    bool enableBlockComments = false;
+    bool enableSnippetDefs = false;
+    bool enableCallouts = true;
+    bool enableHighlighting = true;
+    bool includeOmitted = false;
+    bool filtermode = false;
+    bool linenumbers = false;
+    auto indent = -1;
+    std::string lang;
+    std::string astyle;
+    std::string subdir;
+    std::string output;
+    trace().setTraceLevel(Tracer::TraceLevel::error);
+
+//    auto amap = docopt::docopt(usage, {argv + 1, argv + argc});
+    auto cli = Opt(skipEmptyLines, "skip empty lines")["-se"]["--skip-empty-lines"]("Skip empty lines?")
+               | Opt(skipBlockComments, "skip block comments")["-sb"]["--skip-block-comments"]("Skip block comments ?")
+               | Opt(skipSnippetDefs, "skip snippet defs")["-ss"]["--skip-snippet-defs"]("Skip snippet Definitions ?")
+               | Opt(skipCallouts, "skip callouts")["-sc"]["--skip-callouts"]("Skip callouts ?")
+               |
+               Opt(skipMultiSnippetDelimiter, "skip multi snippet delimiter")["-sm"]["--skip-multi-snippet-delimiter"](
+                       "Skip multi snippet deliminter ?")
+               | Opt(skipExcludeMarker, "skip exclude marker")["-sx"]["--skip-exclude-marker"]("Skip exclude marker ?")
+               | Opt(skipHighlighting, "skipHighlighting")["-sh"]["--skip-highlighting"]("Skip highlighting ?")
+               | Opt(enableEmptyLines, "enable empty lines")["-ee"]["--enable-empty-lines"]("Enable empty lines ?")
+               | Opt(enableBlockComments, "enable block comments")["-eb"]["--enable-block-comments"](
+            "enable block comments ?")
+               | Opt(enableSnippetDefs, "enable snippet defs")["-es"]["--enable-snippet-defs"]("enable snippet defs ?")
+               | Opt(enableCallouts, "enable callouts")["-ec"]["--enable-callouts"]("enable callouts ?")
+               | Opt(enableHighlighting, "enable highlighting")["-eh"]["--enable-highlighting"]("Enable highlighting?")
+               | Opt(includeOmitted, "include omitted")["-io"]["--include-omitted"]("Include omitted?")
+               | Opt(indent, "indent")["-in"]["--indent"]("indent")
+               | Opt(lang, "lang")["-l"]["--language"]("Language")
+               | Opt(astyle, "asytle")["-a"]["--astyle"]("Astyle ?")
+               | Opt(subdir, "sub directory")["-d"]["--subdir"]("Subdir")
+               | Opt(filtermode, "filter mode")["-x"]["--filteronly"]("Only filter")
+               | Opt(linenumbers, "line numbers")["-n"]["--linenumbers"]("Line numbers")
+               | Opt(output, "output")["-o"]["--output"]("Output");
+
+    CommandLineParser clp;
+    clp.add({"h", "help"});
+    clp.add({"v", "verbose"});
+    clp.add({"se", "skipEmptyLines", "skipemptylines"});
+    clp.add({"sb", "skipBlockComments", "skipblockcomments"});
+    clp.add({"ss", "skipSnippetDefs", "skipsnippetdefs"});
+    clp.add({"sc", "skipCallouts", "skipcallouts"});
+    clp.add({"sm", "skipMultiSnippetDeliminter", "skipdelimiter"});
+    clp.add({"sx", "skipExcludeMarker", "skipexclude"});
+    clp.add({"sh", "skipHighlighting", "skiphighlight"});
+    clp.add({"ee", "enableEmptyLines", "enableemptylines"});
+    clp.add({"eb", "enableBlockComments", "enableblockcomments"});
+    clp.add({"es", "enableSnippetDefs", "enablesnippetdefs"});
+    clp.add({"ec", "enableCallouts", "enablecallouts"});
+    clp.add({"eh", "enableHighlighting", "enablehighlight"});
+    clp.add({"io", "includeOmitted", "includeomitted"});
+    clp.add(CommandLineOption({"in", "indent", "indentlevel"}, true));
+    clp.add(CommandLineOption({"l", "lang", "language"}, true));
+    clp.add(CommandLineOption({"a", "astyle", "astyleoptions"}, true));
+    clp.add(CommandLineOption({"o", "output"}, true));
+    clp.add(CommandLineOption({"d", "subdir"}, true));
+    clp.add(CommandLineOption({"x", "filtermode", "filteronly"}));
+    clp.add(CommandLineOption({"n", "linenums", "linenumbers"}));
+
+    clp.parse(argc, argv);
+
+    if (!clp.invalidOptions().empty()) {
+        for (const CommandLineOption &o: clp.invalidOptions()) {
+            std::cerr << "invalid option: " << o.names().front() << std::endl;
+        }
+    }
+
+    if (CommandLineOption ho = clp.option("h")) {
+        std::cout << __cplusplus << std::endl;
+        std::cout << clp;
+        return EXIT_SUCCESS;
+    }
+    if (CommandLineOption vo = clp.option("v")) {
+        trace().setTraceLevel(Tracer::TraceLevel::trace);
+        Trace(Tracer::TraceLevel::trace) << vo;
+    }
+
+    std::vector<wm::MimeType> sourceMimeTypes = {wm::MimeType().type("text").subtype("x-c"),
+                                                 wm::MimeType().type("text").subtype("x-c++"),
+                                                 wm::MimeType().type("text").subtype("x-java")
+    };
+    for (const auto &arg: clp.positionals()) {
+        Trace(Tracer::TraceLevel::debug) << arg;
+
+        filesystem::path path(arg);
+        std::error_code errorCode;
+        if (filesystem::exists(path, errorCode)) {
+            if (filesystem::is_regular_file(path)) {
+                auto mimeType = wm::FileMagic::mimeType(path);
+                Trace(Tracer::TraceLevel::trace) << *mimeType;
+
+                std::string language = "cpp";
+
+                if (mimeType) {
+                    if (std::count_if(sourceMimeTypes.begin(), sourceMimeTypes.end(), [&](const wm::MimeType &mt) {
+                        return (mt.mType == mimeType->mType) && (mt.mSubType == mimeType->mSubType);
+                    }) > 0) {
+                        if (mimeType->type() == "text" && mimeType->subtype() == "java") {
+                            language = "java";
+                        }
+                    }
+                    if (mimeType->type() == "text" && mimeType->subtype() == "plain") {
+                        if (path.extension() == ".java") {
+                            language = "java";
+                        }
+                    }
+                } else {
+                    if (path.extension() == ".java") {
+                        language = "java";
+                    }
+                }
+
+                Trace(Tracer::TraceLevel::trace) << path.extension();
+
+                AsciidocSnippetFileGenerator generator(path);
+                generator.language(language);
+
+                if(!lang.empty())
+                {
+                    generator.language(lang);
+                }
+                if (skipEmptyLines) {
+                        generator.skipEmptyLines(true);
+                    }
+                if (skipBlockComments) {
+                    generator.skipBlockComments(true);
+                }
+                if (skipSnippetDefs) {
+                    generator.skipSnippetDefinitions(true);
+                }
+                if (skipCallouts) {
+                    generator.skipCallouts(true);
+                }
+                if (skipMultiSnippetDelimiter) {
+                    generator.printMultiSnippetDelimiter(false);
+                }
+                if (skipExcludeMarker) {
+                    generator.printExcludeMarker(false);
+                }
+                if (skipHighlighting) {
+                    generator.highlightLines(false);
+                }
+                if (enableEmptyLines) {
+                    generator.skipEmptyLines(false);
+                }
+                if (enableBlockComments) {
+                    generator.skipBlockComments(false);
+                }
+                if (enableSnippetDefs) {
+                    generator.skipSnippetDefinitions(false);
+                }
+                if (enableCallouts) {
+                    generator.skipCallouts(false);
+                }
+                if (enableHighlighting) {
+                    generator.highlightLines(true);
+                }
+                if (includeOmitted) {
+                    generator.includeOmitted(true);
+                }
+                if (0 > indent) {
+                    generator.indent(indent);
+                }
+                if (!astyle.empty()) {
+                    generator.astyleOptions("-" + astyle);
+                }
+                if (!output.empty()) {
+                    generator.outputFilePath(output);
+                }
+                if (!subdir.empty()) {
+                    generator.subDirectoryName(subdir);
+                }
+                if (linenumbers) {
+                    generator.lineNumbers(true);
+                }
+                if (clp.option("x"))
+                {
+                        Trace(Tracer::TraceLevel::trace) << "nosnippets filter mode";
+                        if (generator.parseOnly())
+                        {
+                            std::cout << generator.fileContents() << std::endl;
+                        }
+                        else
+                        {
+                            std::cerr << "Can't process " << path;
+                            return EXIT_FAILURE;
+                        }
+                }
+                else
+                {
+                    std::cerr << path << errorCode.message();
+                    return EXIT_FAILURE;
+                }
+        }
+
+        return EXIT_SUCCESS;
+    }
+}

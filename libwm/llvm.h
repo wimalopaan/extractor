@@ -20,15 +20,15 @@
 
 #include <iosfwd>
 
-#define __STDC_LIMIT_MACROS
-#define __STDC_CONSTANT_MACROS
+//#define __STDC_LIMIT_MACROS
+//#define __STDC_CONSTANT_MACROS
 
-#include "llvm/ADT/StringRef.h"
+//#include "llvm/ADT/StringRef.h"
 
-namespace llvm
-{
+//namespace llvm
+//{
 
-std::ostream& operator<<(std::ostream& out, const llvm::StringRef& s);
+//std::ostream& operator<<(std::ostream& out, const llvm::StringRef& s);
 
-} // llvm
+//} // llvm
 

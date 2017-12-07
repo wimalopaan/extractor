@@ -3,8 +3,8 @@
 #targets = extractor test desertest axtractor
 targets = extractor axtractor avrasmopt
 
-#CXX = clang++
-CXX = /usr/local/bin/g++
+CXX = clang++
+#CXX = /usr/local/bin/g++
 #CXX = g++
 
 export LC_ALL=C
@@ -14,10 +14,9 @@ ifeq (${CXX}, clang++)
  LDFLAGS += -fsanitize=undefined
 else
 # CXXFLAGS += -g -Wall -Wextra -Wconversion -pedantic -std=c++17 -fdiagnostics-color
- CXXFLAGS += -g -Wall -Wextra -Wconversion -fconcepts -std=c++17 
+ #CXXFLAGS += -g -Wall -Wextra -Wconversion -fconcepts -std=c++17 
+ CXXFLAGS += -g -Wall -Wextra -Wconversion -std=c++17 
 endif
-
-CXXFLAGS += -fPIC
 
 ifdef NDEBUG
  CPPFLAGS += -DNDEBUG

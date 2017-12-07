@@ -20,11 +20,11 @@
 
 #include <iostream>
 
-namespace llvm
-{
-std::ostream& operator<<(std::ostream& out, const llvm::StringRef& s)
-{
-    return out << s.str();
-}
+//namespace llvm
+//{
+//std::ostream& operator<<(std::ostream& out, const llvm::StringRef& s)
+//{
+//    return out << s.str();
+//}
 
-} // llvm
+//}// // llvm

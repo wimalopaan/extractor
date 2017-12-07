@@ -17,15 +17,12 @@
  */
 
 #include "commandlineparser.h"
-
 #include <cassert>
 #include <algorithm>
 #include <iostream>
-
 CommandLineParser::CommandLineParser()
 {
 }
-
 bool CommandLineParser::parse(int argc, const char** argv)
 {
     mArguments.clear();
@@ -33,19 +30,16 @@ bool CommandLineParser::parse(int argc, const char** argv)
 
     return parse();
 }
-
 bool CommandLineParser::parse(const std::vector<std::string>& args)
 {
     mArguments = args;
     return parse();
 }
-
 CommandLineParser& CommandLineParser::add(const CommandLineOption& option)
 {
     mOptions.push_back(option);
     return *this;
 }
-
 CommandLineOption CommandLineParser::option(const std::string& name) const
 {
     auto it = std::find(mOptions.cbegin(), mOptions.cend(), name);
@@ -54,22 +48,18 @@ CommandLineOption CommandLineParser::option(const std::string& name) const
     }
     return CommandLineOption();
 }
-
 const std::vector<CommandLineOption>&CommandLineParser::options() const
 {
     return mOptions;
 }
-
 const std::vector<std::string>& CommandLineParser::positionals() const
 {
     return mPositionals;
 }
-
 const std::vector<CommandLineOption>& CommandLineParser::invalidOptions() const
 {
     return mInvalidOptions;
 }
-
 bool CommandLineParser::parse()
 {
     auto argIt = mArguments.cbegin();
@@ -129,8 +119,6 @@ bool CommandLineParser::parse()
     }
     return true;
 }
-
-
 std::ostream&operator<<(std::ostream& o, const CommandLineParser& parser)
 {
     for(const auto& opt: parser.options()) {
