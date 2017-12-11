@@ -32,17 +32,22 @@ using namespace clara;
 #include "tracer.h"
 #include "docopt.h"
 // todo: add option to generate link to  source-file
+const std::regex isOption{"^(-{1,2})(.*)"};
+std::vector<wm::MimeType> sourceMimeTypes = {wm::MimeType().type("text").subtype("x-c"),
+                                             wm::MimeType().type("text").subtype("x-c++"),
+                                             wm::MimeType().type("text").subtype("x-java")};
+bool checkIfFileWasSpecified(const std::string&);
+void checkMimeTypeForLanguage(const filesystem::path&, std::string&);
+int generateOutput(AsciidocSnippetFileGenerator&);
+
 int main(int argc, char* argv[])
 {
-    const std::regex isOption{"^-{1,2}"};
-    std::vector<wm::MimeType> sourceMimeTypes = {wm::MimeType().type("text").subtype("x-c"),
-                                                 wm::MimeType().type("text").subtype("x-c++"),
-                                                 wm::MimeType().type("text").subtype("x-java")};
     trace().setTraceLevel(Tracer::TraceLevel::error);
+    bool parseOnly = false;
     const std::string sourceFile{argv[--argc]};
-    if(std::regex_match(sourceFile, isOption))
+    std::string language = "cpp";
+    if(!checkIfFileWasSpecified(sourceFile))
     {
-        std::cerr << "No source file specified" << std::endl;
         return EXIT_FAILURE;
     }
     const filesystem::path path{sourceFile};
@@ -57,10 +62,74 @@ int main(int argc, char* argv[])
         std::cerr << "The specified file is not a regular file." << std::endl;
         return EXIT_FAILURE;
     }
+    checkMimeTypeForLanguage(path, language);
+    Trace(Tracer::TraceLevel::trace) << path.extension();
+    AsciidocSnippetFileGenerator generator(path);
+    auto cli = Opt([&](bool skipEmptyLines){generator.skipEmptyLines(true);})["--skip-empty-lines"]("Skip empty lines?")
+               | Opt([&](bool skipBlockComments){generator.skipBlockComments(true);}, "skip block comments")["--skip-block-comments"]("Skip block comments ?")
+               | Opt([&](bool skipSnippetDefs){generator.skipSnippetDefinitions(true);}, "skip snippet defs")["--skip-snippet-defs"]("Skip snippet Definitions ?")
+               | Opt([&](bool skipCallouts){generator.skipCallouts(false);}, "skip callouts")["--skip-callouts"]("Skip callouts ?")
+               | Opt([&](bool skipMultiSnippetDelimiter){generator.printMultiSnippetDelimiter(false);}, "skip multi snippet delimiter")["--skip-multi-snippet-delimiter"]("Skip multi snippet deliminter ?")
+               | Opt([&](bool skipExcludeMarker){generator.printExcludeMarker(false);}, "skip exclude marker")["--skip-exclude-marker"]("Skip exclude marker ?")
+               | Opt([&](bool skipHighlighting){generator.highlightLines(false);}, "skipHighlighting")["--skip-highlighting"]("Skip highlighting ?")
+               | Opt([&](bool enableEmptyLines){generator.skipEmptyLines(false);}, "enable empty lines")["--enable-empty-lines"]("Enable empty lines ?")
+               | Opt([&](bool enableBlockComments){generator.skipBlockComments(false);}, "enable block comments")["--enable-block-comments"]("enable block comments ?")
+               | Opt([&](bool enableSnippetDefs){generator.skipSnippetDefinitions(false);}, "enable snippet defs")["--enable-snippet-defs"]("enable snippet defs ?")
+               | Opt([&](bool enableCallouts){generator.skipCallouts(true);}, "enable callouts")["--enable-callouts"]("enable callouts ?")
+               | Opt([&](bool enableHighlighting){generator.highlightLines(true);}, "enable highlighting")["--enable-highlighting"]("Enable highlighting?")
+               | Opt([&](bool includeOmitted){generator.includeOmitted(true);}, "include omitted")["--include-omitted"]("Include omitted?")
+               | Opt([&](int indent){if(0 < indent){generator.indent(indent);}}, "indent")["--indent"]("indent")
+               | Opt([&](std::string lang){if(!lang.empty()){generator.language(lang);}}, "lang")["-l"]["--language"]("Language")
+               | Opt([&](std::string astyle){if(!astyle.empty()){generator.astyleOptions("-" + astyle);}}, "asytle")["-a"]["--astyle"]("Astyle ?")
+               | Opt([&](std::string output){if(!output.empty()){generator.outputFilePath(output);}}, "output")["-o"]["--output"]("Output")
+               | Opt([&](std::string subdir){if(!subdir.empty()){generator.subDirectoryName(subdir);}}, "sub directory")["-d"]["--subdir"]("Subdir")
+               | Opt(parseOnly)["-x"]["--filter-only"]("Only filter")
+               | Opt([&](bool linenumbers){generator.lineNumbers(true);}, "line numbers")["-n"]["--linenumbers"]("Line numbers");
+    auto result = cli.parse( Args( argc, argv ) );
+    if(!result)
+    {
+        std::cerr << "Error in command line: " << result.errorMessage() << std::endl;
+        return EXIT_FAILURE;
+    }
+    if(parseOnly)
+    {
+        Trace(Tracer::TraceLevel::trace) << "no snippets filter mode";
+        if (generator.parseOnly())
+        {
+            std::cout << generator.fileContents() << std::endl;
+        }
+        else
+        {
+            std::cerr << "Can't process " << path;
+            return EXIT_FAILURE;
+        }
+    }
+    else
+    {
+        if(!generator.generate())
+        {
+            std::cerr << "Can't process " << path;
+            return EXIT_FAILURE;
+        }
+    }
+    return EXIT_SUCCESS;
+}
+
+bool checkIfFileWasSpecified(const std::string& sourceFile)
+{
+    const std::regex isOption{"^(-{1,2})(.*)"};
+    if(std::regex_match(sourceFile, isOption))
+    {
+        std::cerr << "No source file specified" << std::endl;
+        return false;
+    }
+    return true;
+}
+
+void checkMimeTypeForLanguage(const filesystem::path& path, std::string& language)
+{
     auto mimeType = wm::FileMagic::mimeType(path);
     Trace(Tracer::TraceLevel::trace) << *mimeType;
-    std::string language = "cpp";
-    bool parseOnly = false;
     if (mimeType)
     {
         if (std::count_if(sourceMimeTypes.begin(), sourceMimeTypes.end(), [&](const wm::MimeType &mt)
@@ -68,7 +137,7 @@ int main(int argc, char* argv[])
             return (mt.mType == mimeType->mType) && (mt.mSubType == mimeType->mSubType);
         }) > 0)
         {
-            if (mimeType->type() == "text" && mimeType->subtype() == "java")
+            if(mimeType->type() == "text" && mimeType->subtype() == "java")
             {
                 language = "java";
             }
@@ -88,47 +157,4 @@ int main(int argc, char* argv[])
             language = "java";
         }
     }
-    Trace(Tracer::TraceLevel::trace) << path.extension();
-    AsciidocSnippetFileGenerator generator(path);
-    auto cli = Opt([&](bool skipEmptyLines){generator.skipEmptyLines(true);})["-se"]["--skip-empty-lines"]("Skip empty lines?")
-               | Opt([&](bool skipBlockComments){generator.skipBlockComments(true);}, "skip block comments")["-sb"]["--skip-block-comments"]("Skip block comments ?")
-               | Opt([&](bool skipSnippetDefs){generator.skipSnippetDefinitions(true);}, "skip snippet defs")["-ss"]["--skip-snippet-defs"]("Skip snippet Definitions ?")
-               | Opt([&](bool skipCallouts){generator.skipCallouts(false);}, "skip callouts")["-sc"]["--skip-callouts"]("Skip callouts ?")
-               | Opt([&](bool skipMultiSnippetDelimiter){generator.printMultiSnippetDelimiter(false);}, "skip multi snippet delimiter")["-sm"]["--skip-multi-snippet-delimiter"]("Skip multi snippet deliminter ?")
-               | Opt([&](bool skipExcludeMarker){generator.printExcludeMarker(false);}, "skip exclude marker")["-sx"]["--skip-exclude-marker"]("Skip exclude marker ?")
-               | Opt([&](bool skipHighlighting){generator.highlightLines(false);}, "skipHighlighting")["-sh"]["--skip-highlighting"]("Skip highlighting ?")
-               | Opt([&](bool enableEmptyLines){generator.skipEmptyLines(false);}, "enable empty lines")["-ee"]["--enable-empty-lines"]("Enable empty lines ?")
-               | Opt([&](bool enableBlockComments){generator.skipBlockComments(false);}, "enable block comments")["-eb"]["--enable-block-comments"]("enable block comments ?")
-               | Opt([&](bool enableSnippetDefs){generator.skipSnippetDefinitions(false);}, "enable snippet defs")["-es"]["--enable-snippet-defs"]("enable snippet defs ?")
-               | Opt([&](bool enableCallouts){generator.skipCallouts(true);}, "enable callouts")["-ec"]["--enable-callouts"]("enable callouts ?")
-               | Opt([&](bool enableHighlighting){generator.highlightLines(true);}, "enable highlighting")["-eh"]["--enable-highlighting"]("Enable highlighting?")
-               | Opt([&](bool includeOmitted){generator.includeOmitted(true);}, "include omitted")["-io"]["--include-omitted"]("Include omitted?")
-               | Opt([&](int indent){if(0 < indent){generator.indent(indent);}}, "indent")["-in"]["--indent"]("indent")
-               | Opt([&](std::string lang){if(!lang.empty()){generator.language(lang);}}, "lang")["-l"]["--language"]("Language")
-               | Opt([&](std::string astyle){if(!astyle.empty()){generator.astyleOptions("-" + astyle);}}, "asytle")["-a"]["--astyle"]("Astyle ?")
-               | Opt([&](std::string output){if(!output.empty()){generator.outputFilePath(output);}}, "output")["-o"]["--output"]("Output")
-               | Opt([&](std::string subdir){if(!subdir.empty()){generator.subDirectoryName(subdir);}}, "sub directory")["-d"]["--subdir"]("Subdir")
-               | Opt(parseOnly)["-x"]["--filteronly"]("Only filter")
-               | Opt([&](bool linenumbers){generator.lineNumbers(true);}, "line numbers")["-n"]["--linenumbers"]("Line numbers");
-    auto result = cli.parse( Args( argc, argv ) );
-    if(!result)
-    {
-        std::cerr << "Error in command line: " << result.errorMessage() << std::endl;
-        return EXIT_FAILURE;
-    }
-    Trace(Tracer::TraceLevel::trace) << "nosnippets filter mode";
-    if(parseOnly)
-    {
-        Trace(Tracer::TraceLevel::trace) << "nosnippets filter mode";
-        if (generator.parseOnly())
-        {
-            std::cout << generator.fileContents() << std::endl;
-        }
-        else
-        {
-            std::cerr << "Can't process " << path;
-            return EXIT_FAILURE;
-        }
-    }
-    return EXIT_SUCCESS;
 }

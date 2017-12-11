@@ -259,7 +259,7 @@ bool CppExtractor::parse()
                                 ++it2;
                                 std::string exText(it2->begin(), remainingLine.end());
 
-                                Trace(Tracer::TraceLevel::info) << "excludetext found: "<< exText;
+                                Trace(Tracer::TraceLevel::info) << "exclude text found: "<< exText;
 
                                 excludeTexts[snippetName] = exText;
 
