@@ -38,7 +38,6 @@ std::vector<wm::MimeType> sourceMimeTypes = {wm::MimeType().type("text").subtype
                                              wm::MimeType().type("text").subtype("x-java")};
 bool checkIfFileWasSpecified(const std::string&);
 void checkMimeTypeForLanguage(const filesystem::path&, std::string&);
-int generateOutput(AsciidocSnippetFileGenerator&);
 
 int main(int argc, char* argv[])
 {
@@ -117,7 +116,6 @@ int main(int argc, char* argv[])
 
 bool checkIfFileWasSpecified(const std::string& sourceFile)
 {
-    const std::regex isOption{"^(-{1,2})(.*)"};
     if(std::regex_match(sourceFile, isOption))
     {
         std::cerr << "No source file specified" << std::endl;
