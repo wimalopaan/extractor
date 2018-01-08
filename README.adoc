@@ -1,0 +1,233 @@
+Wilhelm Meier <wilhelm.meier@hs-kl.de>
+:lang: de
+:toc: left
+:toc-title: Inhalt
+:toclevels: 5
+:numbered:
+:sectnumlevels: 5
+:src_numbered: 
+:icons: font
+:figure-caption: Abbildung
+:keywords: asciidoctor
+:description: extractor
+:title: Extractor
+:sectanchors:
+:sectlinks:
+:experimental:
+:copyright: Wilhelm Meier
+:duration: 90
+//:source-highlighter: coderay
+:coderay-css: style
+:source-highlighter: pygments
+:pygments-css: class
+:status:
+:menu:
+:navigation:
+:split:
+:goto:
+:blank:
+:deckjs_theme: swiss
+:showtitle:
+:docinfo1:
+:stem:
+:deckjs_transition: horizontal-slide
+//:stylesdir: ./css
+//:stylesheet: wm2.css
+//:scriptsdir: ./js
+:customcss: css/deckjs.css 
+:revealjs_theme: beige
+:revealjs_slidenumber: true
+// for attributes in link:[] macro like link:xxx[window="_blank"]
+:linkattrs:
+
+include::stddefs.adoc[]
+
+[.lead]
+`Extractor`: a source code extractor
+
+== Overview
+
+`Extractor` is a tool for extracting information from `C++` or `Java` source files.
+
+If you write technical documents like program documentation, how-to's (like this) or other mostly
+software oriented documents, it is a very commen requirement to show some source-code. To limit the chances 
+of documention errors, these source-code examples should be _real world examples_. This means, that they
+should be extracted from real code examples or production code and they should not be cut-and-pasted into
+the document or originally be written _in_ the document. This leads to untested and unchecked examples with a 
+high risk of being wrong (or outdated).
+
+{adoctor} is a fast text processor and publishing toolchain for converting {adoctor} content to HTML5.
+In addition, {adoctor} allows source files to be embedded directly into the document, which eliminates cut-and-pasted errors.
+
+But real world examples are mostly too long to be fully included. It would be much more readable if you can focus
+on the important parts of the source code and leave unrelevant parts out. 
+This is what {extractor} is for: 
+
+* extracting parts (_snippets_) from real world source code.
+* omitting lines of the source code
+* generating auto-callouts from comments of the source-code
+* highlighting parts of the source-code
+
+== Prerequisites
+
+=== Compiler
+
+You need a `$$C++$$` compiler that supports at least `$$C++$$14` (both {gcc} and {clang} will do).
+
+=== Libraries
+
+The following system libraries are *required*:
+
+* from {boost}: {boostregex} (_header-only_ library)
+* {astyle}
+* {libmagic}
+
+=== Tools
+
+Not strictly needed, but helpfull: {srchilite}.
+
+And of course: {adoctor}
+
+== Installation
+
+The installation is very simple and is done in two steps.
+
+=== Download the source
+
+Download the souce from http://sourceforge.net/p/osscourse/git/ci/master/tree[sourceforge].
+
+=== Build 
+
+==== Linux
+
+First navigate into the root folder of {extractor}:
+
+.{shell-caption}{counter:shell}.
+[source, shell]
+---
+$ cd /to/your/location/of/extractor
+---
+
+Then simply type:
+
+.{shell-caption}{counter:shell}.
+[source, shell]
+----
+$ make all
+----
+
+Optional you can also add the "installation_home/extract" to your PATH environment variable so that you may start {extractor} from any directory.
+
+==== MacOS
+
+Coming soon.
+
+==== Windows
+
+Coming soon.
+
+== Usage
+
+The following example will show the basic idea behind {extractor}.
+
+=== Simple Example
+
+:srcdir: example01
+
+Suppose you will document the following very simple `C++` example:
+
+include::{srcbase}/{srcdir}/{extractordir}/test.cc.all[]
+
+It could be that you want to describe the portion of the souce file where the `include` directives are 
+in a special way. Therefore it would be nice to _extract_ that part of the file like:
+
+include::{srcbase}/{srcdir}/{extractordir}/test.cc.include[]
+
+In a later section of your documentation you want to emphasize the `int main()` function:
+
+include::{srcbase}/{srcdir}/{extractordir}/test.cc.main[]
+
+For this to be possible without copying manually anything from your sources you have to _mark_ these
+parts directly _in_ your sources. These parts are called <<snippets, snippets>>.
+
+.A simple source snippet definition
+[source,cpp,indent=0]
+----
+//[<name> <1>
+...
+//] <2>
+----
+<1> Begin of snippet `name`
+<2> End of snippet `name`
+
+[CAUTION]
+Source snippets resemble the {adoctor} feature of include tags, but they have to be _strictly nested_.
+They *must not* overlap!
+
+With this you can _annotate_ your _real_ source code with the neccessary snippet definitions: 
+
+.The file link:{srcbase}/{srcdir}/test.cc.html[`test.cc`,window="_new"] with the source snippets `include` and `main`
+[source,cpp,indent=0]
+----
+include::{srcbase}/{srcdir}/test.cc[]
+----
+
+Then you run the `extractor` for your file link:{srcbase}/{srcdir}/test.cc.html[test.cc,window="_new"]:
+
+.{shell-caption}{counter:shell}.
+[source, shell]
+----
+$ extractor test.cc
+----
+
+The outcome from this is the file link:{srcbase}/{srcdir}/test.extractor[test.extractor] with the contents:
+
+.The Content of the snippet database file 
+[source, snippetdatabase]
+----
+include::{srcbase}/{srcdir}/test.extractor[]
+----
+
+At the moment this file isn't very useful (but if you want to <<make, automate>> building the whole documenation, 
+this file will become very handy), but if you look carefully into the directory of the file `test.cc` 
+you'll find a newly create directory named `.extractor`:
+
+[role="output"]
+....
+include::{srcbase}/{srcdir}/contents[]
+....
+
+These files contain the snippets, e.g. the file `test.cc.main` obviously contains the snippet `main` of 
+file `test.cc`. The file `test.cc.all` contains the _full_ file `test.cc` but without the snippet definitions.
+
+In your {adoctor} documentation files you can include these snippets files.
+Especially usefull are defintions of some _attributes_ like `srcbase`, `srcdir` and `extractdir`:
+
+[source,asciidoc,indent=0]
+----
+ include::{srcbase}/{srcdir}/{extractordir}/test.cc.main[]
+----
+
+The contents of the snippet-file is asciidoc:
+
+[source,asciidoc]
+....
+include::{srcbase}/{srcdir}/{extractordir}/test.cc.main[]
+....
+
+[TIP]
+--
+Please note that this file contains `asciidoc`-syntax, e.g. this simple case generates a caption with a 
+link to the file containing the displayed snippet. If you click on the link, you should get a new browser
+window with the original code highlighted via `source-highlight` as a `html`-file (s.a. <<make>>).
+
+If the snippet contains _auto-callouts_ these will also be collected into the snippet file (s.a. <<callouts>>).
+--
+
+If you use the above `include`-macro in your documentation you'll get the following result:
+
+include::{srcbase}/{srcdir}/{extractordir}/test.cc.main[]
+
+Ok, that's the simple story.
+
+For further information  about extractor and his various features read the user guide.
