@@ -1,4 +1,0 @@
-/home/merscherc/Applications/CLion.d/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/merscherc/git/extractor
--- Configuring done
--- Generating done
--- Build files have been written to: /home/merscherc/git/extractor/cmake-build-debug

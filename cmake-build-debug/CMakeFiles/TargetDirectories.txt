@@ -1,3 +1,0 @@
-/home/merscherc/git/extractor/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/merscherc/git/extractor/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/merscherc/git/extractor/cmake-build-debug/CMakeFiles/extractor.dir
