@@ -1,8 +1,10 @@
 Wilhelm Meier <wilhelm.meier@hs-kl.de>
 
-:toc:	left
+:toc:	macro
 
 include::stddefs.adoc[]
+
+toc::[]
 
 [.lead]
 `Extractor`: a source code extractor
