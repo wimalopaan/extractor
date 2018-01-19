@@ -1,6 +1,5 @@
 :toc: macro
 :lang: de
-:toc-title: Inhalt
 :toclevels: 5
 :numbered:
 :sectnumlevels: 5
