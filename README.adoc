@@ -1,5 +1,7 @@
 Wilhelm Meier <wilhelm.meier@hs-kl.de>
-:toc: macro
+
+:toc:	macro
+
 toc::[]
 include::stddefs.adoc[]
 
