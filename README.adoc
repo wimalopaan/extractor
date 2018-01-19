@@ -1,15 +1,14 @@
 Wilhelm Meier <wilhelm.meier@hs-kl.de>
 
 :toc:	macro
+toc::[]
 
 include::stddefs.adoc[]
-
-toc::[]
 
 [.lead]
 `Extractor`: a source code extractor
 
-## Overview
+== Overview
 
 `Extractor` is a tool for extracting information from `C++` or `Java` source files.
 
