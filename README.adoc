@@ -3,6 +3,18 @@
 :toc-title: Inhalt
 :toclevels: 5
 :numbered:
+:sectnumlevels: 5
+:src_numbered: 
+:icons: font
+:figure-caption: Abbildung
+:keywords: asciidoctor
+:description: extractor
+:title: Extractor
+:sectanchors:
+:sectlinks:
+:experimental:
+:copyright: Wilhelm Meier
+:duration: 90
 
 Wilhelm Meier <wilhelm.meier@hs-kl.de>
 
