@@ -1,6 +1,8 @@
 :toc: macro
 :lang: de
 :toc-title: Inhalt
+:toclevels: 5
+:numbered:
 
 Wilhelm Meier <wilhelm.meier@hs-kl.de>
 
