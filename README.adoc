@@ -1,45 +1,6 @@
 Wilhelm Meier <wilhelm.meier@hs-kl.de>
 :toc: macro
 toc::[]
-:lang: de
-:toc-title: Inhalt
-:toclevels: 5
-:numbered:
-:sectnumlevels: 5
-:src_numbered: 
-:icons: font
-:figure-caption: Abbildung
-:keywords: asciidoctor
-:description: extractor
-:title: Extractor
-:sectanchors:
-:sectlinks:
-:experimental:
-:copyright: Wilhelm Meier
-:duration: 90
-//:source-highlighter: coderay
-:coderay-css: style
-:source-highlighter: pygments
-:pygments-css: class
-:status:
-:menu:
-:navigation:
-:split:
-:goto:
-:blank:
-:deckjs_theme: swiss
-:showtitle:
-:docinfo1:
-:stem:
-:deckjs_transition: horizontal-slide
-//:stylesdir: ./css
-//:stylesheet: wm2.css
-//:scriptsdir: ./js
-:customcss: css/deckjs.css 
-:revealjs_theme: beige
-:revealjs_slidenumber: true
-// for attributes in link:[] macro like link:xxx[window="_blank"]
-:linkattrs:
 include::stddefs.adoc[]
 
 [.lead]
