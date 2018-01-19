@@ -1,6 +1,7 @@
 Wilhelm Meier <wilhelm.meier@hs-kl.de>
-:lang: de
 :toc: macro
+toc::[]
+:lang: de
 :toc-title: Inhalt
 :toclevels: 5
 :numbered:
@@ -39,7 +40,6 @@ Wilhelm Meier <wilhelm.meier@hs-kl.de>
 :revealjs_slidenumber: true
 // for attributes in link:[] macro like link:xxx[window="_blank"]
 :linkattrs:
-toc::[]
 include::stddefs.adoc[]
 
 [.lead]
