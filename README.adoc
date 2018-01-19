@@ -1,6 +1,6 @@
 Wilhelm Meier <wilhelm.meier@hs-kl.de>
 :lang: de
-:toc: left
+:toc: macro
 :toc-title: Inhalt
 :toclevels: 5
 :numbered:
