@@ -10,7 +10,7 @@ CXX = clang++
 export LC_ALL=C
 
 ifeq (${CXX}, clang++)
- CXXFLAGS += -g -Wall -Wextra -std=c++1z -Wconversion -pedantic # -fsanitize=undefined
+ CXXFLAGS += -g -Wall -Wextra -std=c++17 -Wconversion -pedantic # -fsanitize=undefined
  LDFLAGS += -fsanitize=undefined
 else
 # CXXFLAGS += -g -Wall -Wextra -Wconversion -pedantic -std=c++17 -fdiagnostics-color

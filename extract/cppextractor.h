@@ -76,6 +76,7 @@ public:
     std::string  excludeText(const Snippet& snippet, size_t lineNumber) const;
 
     const filesystem::path& path() const;
+    CppExtractor& path(const filesystem::path& path);
 
     CppExtractor& highlightLines(bool highlight);
     bool highlightLines() const;

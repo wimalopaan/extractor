@@ -109,5 +109,6 @@ private:
     static const char* BlockType;
     static const char* Intro;
     static const char* Extro;
+    static const char* FormattedFileExtension;
 };
 

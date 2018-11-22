@@ -27,6 +27,7 @@
 #include "tracer.h"
 
 enum class ParsingStatus {Normal, BlockComment};
+enum class SectionHighlight {Included, Excluded};
 
 CppExtractor::CppExtractor(const filesystem::path& path) :
     mPath(path),
@@ -106,6 +107,12 @@ const filesystem::path& CppExtractor::path() const
     return mPath;
 }
 
+CppExtractor& CppExtractor::path(const filesystem::path& path){
+    mPath = path;
+
+    return *this;
+}
+
 CppExtractor& CppExtractor::highlightLines(bool highlight)
 {
     mHighlightLines = highlight;
@@ -181,7 +188,9 @@ bool CppExtractor::parse()
     std::regex snippetStartRegex2("^\\s*//\\[");                                        // match: $<ws>//[
     std::regex snippetEndRegex("^\\s*//\\]");                                           // match: $<ws>//]
     std::regex omitLineRegex("//-\\s*$");                                               // match: //-
-    std::regex highlightRegex("//!");                                                   // match: //!
+    std::regex highlightRegex("//\\*");                                                 // match: //!
+    std::regex highlightSectionIncludeRegex("\\s\\+\\*");                            // match: +*
+    std::regex highlightSectionExcludeRegex("\\s-\\*");                              // match: -*
 
     std::ifstream fileStream(mPath.string());
     if (fileStream.is_open()) {
@@ -194,6 +203,8 @@ bool CppExtractor::parse()
         auto excludes = std::map<std::string, std::set<std::string>>{};
         auto excludeTexts = std::map<std::string, std::string>{};
         auto matches = std::smatch{};
+
+        std::stack<SectionHighlight> sectionHighlight;
 
         while (std::getline(fileStream, line)) {
             ++fileLineNumber;
@@ -233,8 +244,20 @@ bool CppExtractor::parse()
                 }
             }
             else if (std::regex_search(line, matches, snippetStartRegex2)) {
+
                 std::string remainingLine(matches[0].second, line.cend());
                 boost::trim(remainingLine); // split retains leading whitespace
+
+                if(std::regex_search(remainingLine, matches, highlightSectionIncludeRegex)) {
+                    sectionHighlight.push(SectionHighlight::Included);
+                }
+                else if(std::regex_search(remainingLine, matches, highlightSectionExcludeRegex)) {
+                    sectionHighlight.push(SectionHighlight::Excluded);
+                }
+                else if(!std::empty(sectionHighlight)) {
+                    sectionHighlight.push(sectionHighlight.top());
+                }
+
                 std::vector<boost::iterator_range<std::string::iterator>> names;
                 boost::split(names, remainingLine, boost::is_any_of(" \t"), boost::token_compress_on);
                 for(const auto& p: names) {
@@ -282,6 +305,11 @@ bool CppExtractor::parse()
             }
             else if (std::regex_search(line, matches, snippetEndRegex)) {
                 if (matches.size() >= 1) {
+
+                    if(!std::empty(sectionHighlight)) {
+                        sectionHighlight.pop();
+                    }
+
                     if (snippets.size() >= 1) {
                         const auto& snippetPair = snippets.top();
                         auto it = mSnippets.find(std::get<std::string>(snippetPair));

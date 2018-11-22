@@ -19,7 +19,7 @@
 #include "asciidocsnippetfilegenerator.h"
 
 #include <fstream>
-
+#include <sstream>
 #include <boost/algorithm/string/replace.hpp>
 
 #include "algorithm.h"
@@ -29,6 +29,7 @@
 const char* AsciidocSnippetFileGenerator::BlockType = "source";
 const char* AsciidocSnippetFileGenerator::Intro = "----\n";
 const char* AsciidocSnippetFileGenerator::Extro = "----\n";
+const char* AsciidocSnippetFileGenerator::FormattedFileExtension = ".tmp";
 
 AsciidocSnippetFileGenerator::AsciidocSnippetFileGenerator(const filesystem::path& path) :
     mExtractor(path),
@@ -38,9 +39,27 @@ AsciidocSnippetFileGenerator::AsciidocSnippetFileGenerator(const filesystem::pat
 
 bool AsciidocSnippetFileGenerator::generate()
 {
+
+    std::ifstream original{mExtractor.path().string()};
+    filesystem::path originalFilePath{mExtractor.path()};
+    filesystem::path formattedFilePath{mExtractor.path()};
+    
+    std::stringstream formattedFileExtension;
+    formattedFileExtension << originalFilePath.extension().string() << AsciidocSnippetFileGenerator::FormattedFileExtension;
+    formattedFilePath.replace_extension(formattedFileExtension.str());
+    std::ofstream formattedFile{formattedFilePath.string()};
+    std::string formattedFileContent{std::istreambuf_iterator<char>(original), std::istreambuf_iterator<char>()};
+
+    formattedFile << mAStyle.formattedCText(formattedFileContent).get();
+    formattedFile.close();
+
+    mExtractor.path(formattedFilePath);
+
     if (!mExtractor.parse()) {
         return false;
     }
+
+    filesystem::remove(formattedFilePath);
 
     std::ofstream outputFile(mOutputFilePath.string());
     if (outputFile.is_open()) {
@@ -71,7 +90,8 @@ bool AsciidocSnippetFileGenerator::generate()
         Trace(Tracer::TraceLevel::debug) << snippet;
 
         auto snippetFilePath = subDirPath;
-        snippetFilePath /= mExtractor.path().filename();
+        //snippetFilePath /= mExtractor.path().filename();
+        snippetFilePath /= originalFilePath.filename();
         snippetFilePath += '.';
         snippetFilePath += snippet.mName;
         Trace(Tracer::TraceLevel::debug) << snippetFilePath;
@@ -84,7 +104,8 @@ bool AsciidocSnippetFileGenerator::generate()
         if (fileStream.is_open()) {
             auto coNumber = size_t{1};
             if (!mSkipSourceCaption) {
-                std::string caption = boost::replace_all_copy(mCaption, "%f", mExtractor.path().filename().string());
+                //std::string caption = boost::replace_all_copy(mCaption, "%f", mExtractor.path().filename().string());
+                std::string caption = boost::replace_all_copy(mCaption, "%f", originalFilePath.filename().string());
                 if (snippet.mName != "all") {
                     std::string s = "[Snippet: " + snippet.mName + "]";
                     boost::replace_all(caption, "%s", s);
@@ -166,7 +187,8 @@ bool AsciidocSnippetFileGenerator::generate()
             }
             fileStream << ",indent=" << mIndentLevel << "]\n";
             fileStream << Intro;
-            fileStream << mAStyle.formattedCText(codeLines).get();
+            //fileStream << mAStyle.formattedCText(codeLines).get();
+            fileStream << codeLines;
             fileStream << Extro;
             if (!mSkipCallouts) {
                 if (calloutLineNumbers.size() > 0) {

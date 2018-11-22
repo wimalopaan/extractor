@@ -18,9 +18,9 @@
 
 //[ test1
 #include <algorithm>
-#include <memory> //! Highlight
+#include <memory> //* Highlight
 //]
-
+#include <iostream>
 //[ test2 -test3 -test4 -test3
 #include <algorithm>
 //[ test3
@@ -35,7 +35,7 @@ int main1()
 
     int y = 0; //-
 
-    return x; //! Highlight
+    return x; //* Highlight
 }
 //]
 
@@ -44,9 +44,32 @@ void bla()
 {
 }
 
-//[ test5 : Ersatztext für test5
+//[ test5 +*
 void foo()
 {
+	std::stringstream ss;
+	ss << "Julius ";
+	ss << "kaufe eurer Friedel ";
+	ss << "dieses Kleid aus Krefelder Seide";
+		
+	//[for -*
+	for(int i = 0; i < 10; i++){
+		std::cout << "Number" << std::endl;
+		
+		//[if +*
+		if(i % 2 == 0){
+			std::cout << "Even number" << std::endl;
+		}
+		else{
+			std::cout << "Uneven number" << std::endl;
+		}
+		//]
+		str::string str;
+		str::string tmp;
+	}
+	//]
+
+	std::cout << ss.str() << std::endl;
 }
 //]
 

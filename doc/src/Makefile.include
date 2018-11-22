@@ -81,22 +81,22 @@ shtml: $(jhtml) $(cchtml) $(hhtml)
 	valgrind --tool=memcheck --num-callers=20 --leak-check=yes --leak-resolution=high ./$< > $@ 2>&1
 
 %.cc.extract: %.cc
-	$(EXTRACTOR) -lcpp -aA2 -o$@ -d$(EXTRACTDIR) $<
+	$(EXTRACTOR) -l cpp -a A2 -o $@ -d $(EXTRACTDIR) $<
 
 %.h.extract: %.h
-	$(EXTRACTOR) -lcpp -aA2 -o$@ -d$(EXTRACTDIR) $<
+	$(EXTRACTOR) -l cpp -a A2 -o $@ -d $(EXTRACTDIR) $<
 
 %.java.extract: %.java
-	$(EXTRACTOR) -ljava -aA2 -o$@ -d$(EXTRACTDIR) $<
+	$(EXTRACTOR) -l java -a A2 -o $@ -d $(EXTRACTDIR) $<
 
 %.cc.extractnc: %.cc
-	$(EXTRACTOR) -lcpp -aA2 --sc -d$(EXTRACTDIRNC) -o$@ $<
+	$(EXTRACTOR) -l cpp -a A2 --sc -d $(EXTRACTDIRNC) -o $@ $<
 
 %.h.extractnc: %.h
-	$(EXTRACTOR) -lcpp -aA2 --sc -d$(EXTRACTDIRNC) -o$@ $<
+	$(EXTRACTOR) -l cpp -a A2 --sc -d $(EXTRACTDIRNC) -o $@ $<
 
 %.java.extractnc: %.java
-	$(EXTRACTOR) -ljava -aA2 --sc -d$(EXTRACTDIRNC) -o$@ $<
+	$(EXTRACTOR) -l java -a A2 --sc -d $(EXTRACTDIRNC) -o $@ $<
 
 %.cc.html: %.cc
 	$(EXTRACTOR) -x --eb --io $< | $(SRCHI) -scpp > $@
