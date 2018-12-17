@@ -19,6 +19,7 @@
 //[ test1
 #include <algorithm>
 #include <memory> //* Highlight
+#include <sstream>
 //]
 #include <iostream>
 //[ test2 -test3 -test4 -test3
@@ -58,20 +59,37 @@ void foo()
 		
 		//[if +*
 		if(i % 2 == 0){
-			std::cout << "Even number" << std::endl;
+			std::cout << "If --> Even number" << std::endl;
 		}
 		else{
-			std::cout << "Uneven number" << std::endl;
+			std::cout << "If --> Odd number" << std::endl;
 		}
 		//]
-		str::string str;
-		str::string tmp;
+		std::cout << "Not highlighted section again" << std::endl;
 	}
 	//]
 
+	std::cout << "Highlighted root section" << std::endl;
 	std::cout << ss.str() << std::endl;
 }
 //]
+
+//[baz
+void baz(){
+
+	//[baz::for
+	for(int i = 0; i < 10; i++){
+		std::cout << "Counting: " << i << std::endl;
+
+		if(i == 2){
+			std::cout << "We found number two" << std::endl;
+		}
+	}
+	//]
+	std::cout << "End of baz function" << std::endl;
+}	
+//]
+
 
 //]
 

@@ -4,3 +4,4 @@ doc/*.o
 libwm/*.o
 extract/.extractor/
 .vscode
+test.extractor
