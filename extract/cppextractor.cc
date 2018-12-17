@@ -352,6 +352,10 @@ bool CppExtractor::parse()
                     }
                 }
             }
+
+            if(mHighlightLines && !std::empty(sectionHighlight) && sectionHighlight.top() == SectionHighlight::Included){
+                mHighlightedLines.push_back(lineNumber);
+            }
             ++lineNumber;
             mFileContents.push_back(line);
             break;
