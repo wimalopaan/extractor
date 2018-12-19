@@ -218,8 +218,11 @@ bool CppExtractor::parse()
             Trace(Tracer::TraceLevel::trace) << line;
             switch(status) {
             case ParsingStatus::Normal:
-                if (mHighlightLines && std::regex_search(line, matches, highlightRegex)) {
-                    mHighlightedLines.push_back(lineNumber);
+                if (std::regex_search(line, matches, highlightRegex)) {
+                    if(mHighlightLines){
+                        mHighlightedLines.push_back(lineNumber);
+                    }
+
                     std::string oline(line.cbegin(), matches[0].first);
                     line = std::move(oline);
                 }
