@@ -22,7 +22,7 @@
 #include <fstream>
 #include <boost/algorithm/string/replace.hpp>
 
-AsciidocAsmGenerator::AsciidocAsmGenerator(const filesystem::path& file) : 
+AsciidocAsmGenerator::AsciidocAsmGenerator(const std::filesystem::path& file) : 
     mExtractor(file),
     mOutputFilePath((file.parent_path() / file.stem()) += ".axtractor")
   
@@ -38,9 +38,9 @@ bool AsciidocAsmGenerator::generate()
     auto subDirPath = mExtractor.path().parent_path();
     if (!mSubDirectoryName.empty()) {
         subDirPath /= mSubDirectoryName;
-        if (!filesystem::exists(subDirPath)) {
+        if (!std::filesystem::exists(subDirPath)) {
             auto ec = std::error_code{};
-            if (!filesystem::create_directory(subDirPath, ec)) {
+            if (!std::filesystem::create_directory(subDirPath, ec)) {
                 Trace(Tracer::TraceLevel::error) << ec.message() << subDirPath;
                 return false;
             }
@@ -95,7 +95,7 @@ bool AsciidocAsmGenerator::generate()
     return true;    
 }
 
-AsciidocAsmGenerator&AsciidocAsmGenerator::outputFilePath(const filesystem::path& opath)
+AsciidocAsmGenerator&AsciidocAsmGenerator::outputFilePath(const std::filesystem::path& opath)
 {
     mOutputFilePath = opath;
     return *this;

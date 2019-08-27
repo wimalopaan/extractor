@@ -19,11 +19,7 @@
 #pragma once
 
 #include <unistd.h>
-
-//#include <boost/filesystem.hpp>
-
-#include <experimental/filesystem>
-using namespace std::experimental;
+#include <filesystem>
 
 namespace wm {
 namespace filesystem {
@@ -32,18 +28,18 @@ template<typename It>
 class DirectoryIteratorProvider
 {
 public:
-    explicit DirectoryIteratorProvider(const std::experimental::filesystem::path& directory) : mPath(directory) {}
+    explicit DirectoryIteratorProvider(const std::filesystem::path& directory) : mPath(directory) {}
     It begin() const {return It(mPath);}
     It end() const {return It();}
 private:
-    const std::experimental::filesystem::path& mPath;
+    const std::filesystem::path& mPath;
 };
 
-DirectoryIteratorProvider<std::experimental::filesystem::directory_iterator> dirEntrys(const std::experimental::filesystem::path& directory);
-DirectoryIteratorProvider<std::experimental::filesystem::recursive_directory_iterator> rdirEntrys(const std::experimental::filesystem::path& directory);
+DirectoryIteratorProvider<std::filesystem::directory_iterator> dirEntrys(const std::filesystem::path& directory);
+DirectoryIteratorProvider<std::filesystem::recursive_directory_iterator> rdirEntrys(const std::filesystem::path& directory);
 
-bool isExecutable(const std::experimental::filesystem::path& pathname);
-bool isPrefix(const std::experimental::filesystem::path& possiblePrefix, const std::experimental::filesystem::path& path);
+bool isExecutable(const std::filesystem::path& pathname);
+bool isPrefix(const std::filesystem::path& possiblePrefix, const std::filesystem::path& path);
 
 } // filesystem
 } // wm

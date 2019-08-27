@@ -49,19 +49,19 @@ public:
             }
         }
     }
-    std::experimental::optional<std::string> mime(const std::string& filename) const
+    std::optional<std::string> mime(const std::string& filename) const
     {
         if (!mMagic) {
-            return std::experimental::optional<std::string>();
+            return std::optional<std::string>();
         }
-        if (!filesystem::exists(filename)) {
-            return std::experimental::optional<std::string>();
+        if (!std::filesystem::exists(filename)) {
+            return std::optional<std::string>();
         }
 
         const char* m = magic_file(mMagic, filename.c_str());
         if (!m) {
             std::cerr << magic_error(mMagic) << std::endl;
-            return std::experimental::optional<std::string>();
+            return std::optional<std::string>();
         }
         return std::string(m);
     }
@@ -81,22 +81,22 @@ bool FileMagicImpl::mLoaded = false;
 
 static FileMagicImpl mImpl;
 
-std::experimental::optional<std::string> FileMagic::mimeString(const std::string& filename)
+std::optional<std::string> FileMagic::mimeString(const std::string& filename)
 {
     return mImpl.mime(filename);
 }
 
-std::experimental::optional<MimeType> FileMagic::mimeType(const std::string& filename)
+std::optional<MimeType> FileMagic::mimeType(const std::string& filename)
 {
     return MimeType::parse(mimeString(filename));
 }
 
-std::experimental::optional<MimeType> FileMagic::mimeType(const filesystem::directory_entry& dentry)
+std::optional<MimeType> FileMagic::mimeType(const std::filesystem::directory_entry& dentry)
 {
     return mimeType(dentry.path());
 }
 
-std::experimental::optional<MimeType> FileMagic::mimeType(const filesystem::path& path)
+std::optional<MimeType> FileMagic::mimeType(const std::filesystem::path& path)
 {
     return mimeType(path.string());
 }
@@ -190,14 +190,14 @@ const std::map<std::string, std::string>&MimeType::parameter() const
     return mParameters;
 }
 
-std::experimental::optional<MimeType> MimeType::parse(const std::string& string)
+std::optional<MimeType> MimeType::parse(const std::string& string)
 {
     std::regex rx(wm::rxMimeString, std::regex::ECMAScript);
 
     std::smatch matches;
     std::regex_search(string, matches, rx);
     if (matches.size() < 4) {
-        return std::experimental::optional<MimeType>();
+        return std::optional<MimeType>();
     }
     wm::MimeType mt;
     mt.mType = matches[1];
@@ -226,12 +226,12 @@ std::experimental::optional<MimeType> MimeType::parse(const std::string& string)
     return mt;
 }
 
-std::experimental::optional<MimeType> MimeType::parse(const std::experimental::optional<std::string>& string)
+std::optional<MimeType> MimeType::parse(const std::optional<std::string>& string)
 {
     if (string) {
         return parse(*string);
     }
-    return std::experimental::optional<MimeType>();
+    return std::optional<MimeType>();
 }
 
 std::function<bool(const MimeType&)> MimeType::comparator(int)

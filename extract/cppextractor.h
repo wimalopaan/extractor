@@ -24,9 +24,7 @@
 #include <functional>
 #include <map>
 #include <regex>
-
-#include <experimental/filesystem>
-using namespace std::experimental;
+#include <filesystem>
 
 class CppExtractor final
 {
@@ -43,9 +41,9 @@ public:
         explicit operator bool() const;
 
         static bool isSnippet(const std::string& line, bool fullTest = false);
-        static bool isSnippet(const filesystem::path& path, bool fullTest = false);
+        static bool isSnippet(const std::filesystem::path& path, bool fullTest = false);
 
-        static std::vector<Snippet> snippets(const filesystem::path& path);
+        static std::vector<Snippet> snippets(const std::filesystem::path& path);
     };
 
     class CallOut final {
@@ -57,7 +55,7 @@ public:
         size_t mCommentColumn;
     };
 
-    explicit CppExtractor(const filesystem::path& path);
+    explicit CppExtractor(const std::filesystem::path& path);
 
     CppExtractor(const CppExtractor&) = delete;
     CppExtractor(CppExtractor&&) = delete;
@@ -75,8 +73,8 @@ public:
     bool hasExcludeText(const Snippet& snippet, size_t lineNumber) const;
     std::string  excludeText(const Snippet& snippet, size_t lineNumber) const;
 
-    const filesystem::path& path() const;
-    CppExtractor& path(const filesystem::path& path);
+    const std::filesystem::path& path() const;
+    CppExtractor& path(const std::filesystem::path& path);
 
     CppExtractor& highlightLines(bool highlight);
     bool highlightLines() const;
@@ -98,7 +96,7 @@ public:
     bool hasOmittedLines() const;
 
 private:
-    filesystem::path mPath;
+    std::filesystem::path mPath;
     bool mSkipBlockComments{true};
     bool mSkipEmptyLines{true};
     bool mSkipSnippetDefinitions{true};

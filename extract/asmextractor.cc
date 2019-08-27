@@ -22,7 +22,7 @@
 #include <iostream>
 #include <cassert>
 
-AsmExtractor::AsmExtractor(const filesystem::__cxx11::path& fileName) : mPath(fileName)
+AsmExtractor::AsmExtractor(const std::filesystem::path& fileName) : mPath(fileName)
 {
 }
 
@@ -69,12 +69,12 @@ const std::vector<AsmExtractor::AsmFunction>&AsmExtractor::functions() const
     return mFunctions;
 }
 
-const std::vector<std::string>&AsmExtractor::lines() const
+const std::vector<std::string>& AsmExtractor::lines() const
 {
     return mLinesOfFile;
 }
 
-const filesystem::path&AsmExtractor::path() const
+const std::filesystem::path& AsmExtractor::path() const
 {
     return mPath;
 }

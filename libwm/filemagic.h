@@ -23,13 +23,8 @@
 #include <string>
 #include <map>
 #include <functional>
-
-#include <experimental/optional>
-
-//#include <boost/filesystem.hpp>
-
-#include <experimental/filesystem>
-using namespace std::experimental;
+#include <optional>
+#include <filesystem>
 
 namespace wm
 {
@@ -62,8 +57,8 @@ public:
     std::string mSuffix;
     std::map<std::string,std::string> mParameters;
 
-    static std::experimental::optional<MimeType> parse(const std::string& string);
-    static std::experimental::optional<MimeType> parse(const std::experimental::optional<std::string>& string);
+    static std::optional<MimeType> parse(const std::string& string);
+    static std::optional<MimeType> parse(const std::optional<std::string>& string);
 
     static std::function<bool(const MimeType&)> comparator(int flags);
 };
@@ -76,12 +71,12 @@ std::ostream& operator<<(std::ostream& out, const MimeType& mimetype);
 class FileMagic
 {
 public:
-    static std::experimental::optional<std::string> mimeString(const std::string& filename);
+    static std::optional<std::string> mimeString(const std::string& filename);
 
-    static std::experimental::optional<MimeType> mimeType(const std::string& filename);
+    static std::optional<MimeType> mimeType(const std::string& filename);
 
-    static std::experimental::optional<MimeType> mimeType(const filesystem::directory_entry& dentry);
-    static std::experimental::optional<MimeType> mimeType(const filesystem::path& path);
+    static std::optional<MimeType> mimeType(const std::filesystem::directory_entry& dentry);
+    static std::optional<MimeType> mimeType(const std::filesystem::path& path);
 private:
 };
 

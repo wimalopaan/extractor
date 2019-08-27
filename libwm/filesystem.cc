@@ -23,19 +23,19 @@
 namespace wm {
 namespace filesystem {
 
-DirectoryIteratorProvider<std::experimental::filesystem::directory_iterator> dirEntrys(const std::experimental::filesystem::path& directory)
+DirectoryIteratorProvider<std::filesystem::directory_iterator> dirEntrys(const std::filesystem::path& directory)
 {
-    return DirectoryIteratorProvider<std::experimental::filesystem::directory_iterator>(directory);
+    return DirectoryIteratorProvider<std::filesystem::directory_iterator>(directory);
 }
 
-DirectoryIteratorProvider<std::experimental::filesystem::recursive_directory_iterator> rdirEntrys(const std::experimental::filesystem::path& directory)
+DirectoryIteratorProvider<std::filesystem::recursive_directory_iterator> rdirEntrys(const std::filesystem::path& directory)
 {
-    return DirectoryIteratorProvider<std::experimental::filesystem::recursive_directory_iterator>(directory);
+    return DirectoryIteratorProvider<std::filesystem::recursive_directory_iterator>(directory);
 }
 
-bool isExecutable(const std::experimental::filesystem::path& pathname)
+bool isExecutable(const std::filesystem::path& pathname)
 {
-    if (!std::experimental::filesystem::exists(pathname)) {
+    if (!std::filesystem::exists(pathname)) {
         return false;
     }
     if (access(pathname.string().c_str(), X_OK) < 0) {
@@ -44,7 +44,7 @@ bool isExecutable(const std::experimental::filesystem::path& pathname)
     return true;
 }
 
-bool isPrefix(const std::experimental::filesystem::path& possiblePrefix, const std::experimental::filesystem::path& path)
+bool isPrefix(const std::filesystem::path& possiblePrefix, const std::filesystem::path& path)
 {
     return std::equal(possiblePrefix.begin(), possiblePrefix.end(), path.begin());
 }

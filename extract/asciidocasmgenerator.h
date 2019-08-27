@@ -19,24 +19,23 @@
 #pragma once
 
 #include <string>
-#include <experimental/filesystem>
-using namespace std::experimental;
+#include <filesystem>
 
 #include "asmextractor.h"
 
 class AsciidocAsmGenerator final {
 public:
-    explicit AsciidocAsmGenerator(const filesystem::path& file);
+    explicit AsciidocAsmGenerator(const std::filesystem::path& file);
     
     bool generate();
     
-    AsciidocAsmGenerator& outputFilePath(const filesystem::path& opath);
+    AsciidocAsmGenerator& outputFilePath(const std::filesystem::path& opath);
     AsciidocAsmGenerator& lineNumbers(bool enable);
 private:
     AsmExtractor mExtractor;
 
     std::string mSubDirectoryName{".extractor"};
-    filesystem::path mOutputFilePath;
+    std::filesystem::path mOutputFilePath;
     bool mSkipSourceCaption = false;
     bool mLineNumbers = true;
     size_t mIndentLevel = 0;

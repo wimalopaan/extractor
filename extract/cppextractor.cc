@@ -29,7 +29,7 @@
 enum class ParsingStatus {Normal, BlockComment};
 enum class SectionHighlight {Included, Excluded};
 
-CppExtractor::CppExtractor(const filesystem::path& path) :
+CppExtractor::CppExtractor(const std::filesystem::path& path) :
     mPath(path),
     mSkipBlockComments(true),
     mSkipEmptyLines(true),
@@ -102,12 +102,12 @@ std::string CppExtractor::excludeText(const Snippet& snippet, size_t lineNumber)
 }
 
 
-const filesystem::path& CppExtractor::path() const
+const std::filesystem::path& CppExtractor::path() const
 {
     return mPath;
 }
 
-CppExtractor& CppExtractor::path(const filesystem::path& path){
+CppExtractor& CppExtractor::path(const std::filesystem::path& path){
     mPath = path;
 
     return *this;
@@ -473,7 +473,7 @@ bool CppExtractor::Snippet::isSnippet(const std::string& line, bool fullTest)
     return std::regex_match(line, snippetLineRegEx);
 }
 
-bool CppExtractor::Snippet::isSnippet(const filesystem::path& path, bool fullTest)
+bool CppExtractor::Snippet::isSnippet(const std::filesystem::path& path, bool fullTest)
 {
     std::ifstream fileStream(path.string());
     if (fileStream.is_open()) {
@@ -494,7 +494,7 @@ bool CppExtractor::Snippet::isSnippet(const filesystem::path& path, bool fullTes
     return false;
 }
 
-std::vector<CppExtractor::Snippet> CppExtractor::Snippet::snippets(const filesystem::path& path)
+std::vector<CppExtractor::Snippet> CppExtractor::Snippet::snippets(const std::filesystem::path& path)
 {
     std::vector<CppExtractor::Snippet>  snippets;
 

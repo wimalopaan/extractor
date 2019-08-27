@@ -38,7 +38,7 @@ std::vector<wm::MimeType> sourceMimeTypes = {wm::MimeType().type("text").subtype
                                              wm::MimeType().type("text").subtype("x-c++"),
                                              wm::MimeType().type("text").subtype("x-java")};
 bool checkIfFileWasSpecified(const std::string&);
-void checkMimeTypeForLanguage(const filesystem::path&, std::string&);
+void checkMimeTypeForLanguage(const std::filesystem::path&, std::string&);
 
 int main(int argc, char* argv[])
 {
@@ -105,14 +105,14 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    filesystem::path path{sourceFile};
+    std::filesystem::path path{sourceFile};
 
-    if(!filesystem::exists(path, error_code)){
+    if(!std::filesystem::exists(path, error_code)){
         std::cerr << "Cannot find the specified file." << std::endl;
         return EXIT_FAILURE;
     }
 
-    if(!filesystem::is_regular_file(path)){
+    if(!std::filesystem::is_regular_file(path)){
         std::cerr << "The specified file path does not lead to a regular file." << std::endl;
     }
 
@@ -185,7 +185,7 @@ bool checkIfFileWasSpecified(const std::string& sourceFile)
     return true;
 }
 
-void checkMimeTypeForLanguage(const filesystem::path& path, std::string& language)
+void checkMimeTypeForLanguage(const std::filesystem::path& path, std::string& language)
 {
     auto mimeType = wm::FileMagic::mimeType(path);
     Trace(Tracer::TraceLevel::trace) << *mimeType;

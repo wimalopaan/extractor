@@ -31,7 +31,7 @@ const char* AsciidocSnippetFileGenerator::Intro = "----\n";
 const char* AsciidocSnippetFileGenerator::Extro = "----\n";
 const char* AsciidocSnippetFileGenerator::FormattedFileExtension = ".tmp";
 
-AsciidocSnippetFileGenerator::AsciidocSnippetFileGenerator(const filesystem::path& path) :
+AsciidocSnippetFileGenerator::AsciidocSnippetFileGenerator(const std::filesystem::path& path) :
     mExtractor(path),
     mOutputFilePath((path.parent_path() / path.stem()) += ".extractor")
 {
@@ -40,8 +40,8 @@ AsciidocSnippetFileGenerator::AsciidocSnippetFileGenerator(const filesystem::pat
 bool AsciidocSnippetFileGenerator::generate()
 {
     std::ifstream original{mExtractor.path().string()};
-    filesystem::path originalFilePath{mExtractor.path()};
-    filesystem::path formattedFilePath{mExtractor.path()};
+    std::filesystem::path originalFilePath{mExtractor.path()};
+    std::filesystem::path formattedFilePath{mExtractor.path()};
     
     std::stringstream formattedFileExtension;
     formattedFileExtension << originalFilePath.extension().string() << AsciidocSnippetFileGenerator::FormattedFileExtension;
@@ -58,7 +58,7 @@ bool AsciidocSnippetFileGenerator::generate()
         return false;
     }
 
-    filesystem::remove(formattedFilePath);
+    std::filesystem::remove(formattedFilePath);
 
     std::ofstream outputFile(mOutputFilePath.string());
     if (outputFile.is_open()) {
@@ -73,9 +73,9 @@ bool AsciidocSnippetFileGenerator::generate()
     auto subDirPath = mExtractor.path().parent_path();
     if (!mSubDirectoryName.empty()) {
         subDirPath /= mSubDirectoryName;
-        if (!filesystem::exists(subDirPath)) {
+        if (!std::filesystem::exists(subDirPath)) {
             auto ec = std::error_code{};
-            if (!filesystem::create_directory(subDirPath, ec)) {
+            if (!std::filesystem::create_directory(subDirPath, ec)) {
                 Trace(Tracer::TraceLevel::error) << ec.message() << subDirPath;
                 return false;
             }
@@ -350,12 +350,12 @@ AsciidocSnippetFileGenerator&AsciidocSnippetFileGenerator::excludeMarker(const s
     return *this;
 }
 
-const filesystem::path&AsciidocSnippetFileGenerator::outputFilePath() const
+const std::filesystem::path&AsciidocSnippetFileGenerator::outputFilePath() const
 {
     return mOutputFilePath;
 }
 
-AsciidocSnippetFileGenerator& AsciidocSnippetFileGenerator::outputFilePath(const filesystem::path& path)
+AsciidocSnippetFileGenerator& AsciidocSnippetFileGenerator::outputFilePath(const std::filesystem::path& path)
 {
     mOutputFilePath = path;
     return *this;

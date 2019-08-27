@@ -18,9 +18,7 @@
 
 #pragma once
 
-#include <experimental/filesystem>
-using namespace std::experimental;
-
+#include <filesystem>
 #include <string>
 
 #include "cppextractor.h"
@@ -29,7 +27,7 @@ using namespace std::experimental;
 class AsciidocSnippetFileGenerator
 {
 public:
-    AsciidocSnippetFileGenerator(const filesystem::path& path);
+    AsciidocSnippetFileGenerator(const std::filesystem::path& path);
 
     bool generate();
 
@@ -73,8 +71,8 @@ public:
     const std::string& excludeMarker() const;
     AsciidocSnippetFileGenerator& excludeMarker(const std::string& excludeMarker);
 
-    const filesystem::path& outputFilePath() const;
-    AsciidocSnippetFileGenerator& outputFilePath(const filesystem::path& path);
+    const std::filesystem::path& outputFilePath() const;
+    AsciidocSnippetFileGenerator& outputFilePath(const std::filesystem::path& path);
 
     bool lineNumbers() const;
     AsciidocSnippetFileGenerator& lineNumbers(bool numbering = true);
@@ -94,7 +92,7 @@ private:
 
     std::string mMultiSnippetDeliminterString{"\n// ... lines omitted ...\n\n"};
 
-    filesystem::path mOutputFilePath;
+    std::filesystem::path mOutputFilePath;
 
     bool mSkipCallouts{false};
     bool mSkipSourceCaption{false};
