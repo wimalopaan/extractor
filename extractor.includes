@@ -2,3 +2,8 @@ extract
 libwm
 libwm/folly
 libwm/folly/detail
+.
+doc/src/example01
+doc/src/example02
+doc/src
+doc

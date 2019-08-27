@@ -2,8 +2,8 @@
 
 targets = libwm.so libwm.a libwmtests
 
-CXX = clang++
-#CXX = g++
+#CXX = clang++
+CXX = g++
 
 export LC_ALL=C
 
@@ -13,7 +13,7 @@ ifeq (${CXX}, clang++)
  CXXFLAGS += -g -Wall -Wextra -std=c++14 -Wconversion -pedantic # -fsanitize=undefined
  LDFLAGS += -fsanitize=undefined
 else
- CXXFLAGS += -g -Wall -Wextra -Wconversion -pedantic -std=c++14 -fdiagnostics-color
+ CXXFLAGS += -g -Wall -Wextra -Wconversion -pedantic -std=c++2a -fdiagnostics-color -fPIC
 endif
 
 #CXXFLAGS += $(shell llvm-config --cxxflags) -fexceptions
