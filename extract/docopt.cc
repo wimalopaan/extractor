@@ -9,7 +9,6 @@
 #include "docopt.h"
 #include "docopt_util.h"
 #include "docopt_private.h"
-
 #include "docopt_value.h"
 
 #include <vector>
@@ -21,6 +20,7 @@
 #include <iostream>
 #include <cassert>
 #include <cstddef>
+#include <stdexcept>
 
 using namespace docopt;
 
