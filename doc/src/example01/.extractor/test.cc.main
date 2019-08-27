@@ -1,8 +1,0 @@
-.Zeilen aus der Datei link:{srcbase}/{srcdir}/test.cc.html[`test.cc`,window="newwindows"] [Snippet: main] 
-[source,cpp,indent=0]
-----
-int main()
-{
-    return EXIT_SUCCESS;
-}
-----

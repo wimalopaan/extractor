@@ -1,6 +1,0 @@
-.Zeilen aus der Datei link:{srcbase}/{srcdir}/test.cc.html[`test.cc`,window="newwindows"] [Snippet: include] 
-[source,cpp,indent=0]
-----
-#include <iostream>
-#include <iomanip>
-----

@@ -90,22 +90,22 @@ shtml: $(jhtml) $(cchtml) $(hhtml)
 	$(EXTRACTOR) -l java -a A2 -o $@ -d $(EXTRACTDIR) $<
 
 %.cc.extractnc: %.cc
-	$(EXTRACTOR) -l cpp -a A2 --sc -d $(EXTRACTDIRNC) -o $@ $<
+	$(EXTRACTOR) -l cpp -a A2 --skip-callouts -d $(EXTRACTDIRNC) -o $@ $<
 
 %.h.extractnc: %.h
-	$(EXTRACTOR) -l cpp -a A2 --sc -d $(EXTRACTDIRNC) -o $@ $<
+	$(EXTRACTOR) -l cpp -a A2 --skip-callouts -d $(EXTRACTDIRNC) -o $@ $<
 
 %.java.extractnc: %.java
-	$(EXTRACTOR) -l java -a A2 --sc -d $(EXTRACTDIRNC) -o $@ $<
+	$(EXTRACTOR) -l java -a A2 --skip-callouts -d $(EXTRACTDIRNC) -o $@ $<
 
 %.cc.html: %.cc
-	$(EXTRACTOR) -x --eb --io $< | $(SRCHI) -scpp > $@
+	$(EXTRACTOR) -x --enable-block-comments --include-omitted $< | $(SRCHI) -scpp > $@
 
 %.h.html: %.h
-	$(EXTRACTOR) -x --eb --io $< | $(SRCHI) -scpp > $@
+	$(EXTRACTOR) -x --enable-block-comments --include-omitted $< | $(SRCHI) -scpp > $@
 
 %.java.html: %.java
-	$(EXTRACTOR) -x --eb --io $< | $(SRCHI) -sjava > $@
+	$(EXTRACTOR) -x --enable-block-comments --include-omitted $< | $(SRCHI) -sjava > $@
 
 %.out: %.class
 	java $* $(PARGS) > $@

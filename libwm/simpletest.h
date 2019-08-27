@@ -32,6 +32,8 @@
 #define SIMPLETEST(name) static SimpleTestCase CAT(SimpleTestCaseOnLine, __LINE__) = \
     SimpleTestCase(name, __FILE__, __LINE__) = []
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 class SimpleTestCase {
 public:
     SimpleTestCase(const char* name, const char* file, int line);
@@ -86,3 +88,4 @@ private:
 #endif
 };
 
+#pragma GCC diagnostic pop

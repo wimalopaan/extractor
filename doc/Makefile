@@ -10,7 +10,7 @@ ASCIIDOCTORPDF = ~/asciidoctor/jessedoyle-asciidoctor-pdf/bin/asciidoctor-pdf
 
 EXTENSIONSDIR = ~/asciidoctor/extensions/lib 
 
-ASCIIDOCTORFLAGS += -I $(EXTENSIONSDIR) -r view-result-postprocessor -r man-inline-macro -r asciidoctor-diagram -r tree-block-macro
+ASCIIDOCTORFLAGS += -I $(EXTENSIONSDIR) -r man-inline-macro -r asciidoctor-diagram -r tree-block-macro
 ASCIIDOCTORFLAGSPDF += -I $(EXTENSIONSDIR)  -r asciidoctor-diagram -r tree-block-macro
 ASCIIDOCTORVARS += -a data-uri -a stylesdir=css -a stylesheet=asciidoctor-wide.css
 
@@ -110,4 +110,4 @@ clean:
 	$(RM) diag*.png.cache
 	$(RM) diag*.svg
 	$(RM) diag*.svg.cache
-
+	$(MAKE) -C src clean

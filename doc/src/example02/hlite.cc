@@ -21,7 +21,7 @@
 int main() {
     int x = 0;
     int y = 0;
-    return x; //! Highlight
+    return x + y; //! Highlight
 }
-int foo() {} //!
+int foo() { return 1;} //!
 

@@ -21,16 +21,17 @@
 #include <regex>
 #include <cassert>
 #include <regex>
-#include <experimental/filesystem>
-using namespace std::experimental;
+#include <filesystem>
+
 #include "cppextractor.h"
 #include "asciidocsnippetfilegenerator.h"
 #include "commandlineparser.h"
 #include "clara.hpp"
-using namespace clara;
 #include "filemagic.h"
 #include "tracer.h"
-#include "docopt.h"
+
+using namespace clara;
+
 // todo: add option to generate link to source-file
 const std::regex isOption{"^(-{1,2})(.*)"};
 std::vector<wm::MimeType> sourceMimeTypes = {wm::MimeType().type("text").subtype("x-c"),

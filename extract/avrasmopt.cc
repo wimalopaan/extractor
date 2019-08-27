@@ -50,7 +50,7 @@ int main(int argc, const char** argv) {
         Trace(Tracer::TraceLevel::trace) << vo;
     }
 
-    for(const auto& f: clp.positionals()) {
-    }    
+//    for(const auto& f: clp.positionals()) {
+//    }    
     return EXIT_SUCCESS;
 }
