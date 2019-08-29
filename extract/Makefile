@@ -23,6 +23,7 @@ ifdef NDEBUG
 endif
 
 CPPFLAGS += -I../libwm
+CPPFLAGS += -I./lyra
 
 LDLIBS += -lm -lstdc++ -lstdc++fs
 #LDLIBS += -lboost_system # -lboost_filesystem  -lboost_program_options

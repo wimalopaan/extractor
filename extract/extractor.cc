@@ -18,19 +18,21 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <iterator>
 #include <regex>
 #include <cassert>
 #include <regex>
 #include <filesystem>
+#include <sstream>
 
 #include "cppextractor.h"
 #include "asciidocsnippetfilegenerator.h"
 #include "commandlineparser.h"
-#include "clara.hpp"
+#include "lyra/lyra.hpp"
 #include "filemagic.h"
 #include "tracer.h"
 
-using namespace clara;
+using namespace lyra;
 
 // todo: add option to generate link to source-file
 const std::regex isOption{"^(-{1,2})(.*)"};
@@ -56,32 +58,32 @@ int main(int argc, char* argv[])
     bool showLineNumbers{false};
     bool showHelp{false};
     std::string language{"cpp"};
-    std::string astyleOptions;
+    std::vector<std::string> astyleOptions;
     std::string outputFilePath;
     std::string extractorSubDir;
     std::string sourceFile;
     std::error_code error_code;
     int indent{0};
 
-    auto cli =  Opt(parseOnly)["-x"]["--filter-only"]("parses input file and prints out result without snippet file generation")
-                | Opt(enableEmptyLines)["--enable-empty-lines"]("enable empty lines in snippet")
-                | Opt(enableSnippetDefinitions)["--enable-snippet-defs"]("enable snippet definitions in snippets")
-                | Opt(enableBlockComments)["--enable-block-comments"]("enable block comments in snippets")
-                | Opt(skipCallouts)["--skip-callouts"]("skip callouts")
-                | Opt(printMultiSnippetDelimiter)["--skip-multi-snippet-delim"]("skip multi snippet delimiters")
-                | Opt(printExcludeMarker)["--skip-exclude-marker"]("skip exclude marker")
-                | Opt(skipLineHighlighting)["--skip-highlighting"]("skip source code line highlighting")
-                | Opt(includeOmitted)["--include-omitted"]("include omitted lines")
-                | Opt(language, "language")["-l"]["--language"]("source files language")
-                | Opt(astyleOptions, "astyle options")["-a"]["--astyle"]("options passed to astyle")
-                | Opt(outputFilePath, "output file path")["-o"]["--output"]("extractors output file path")
-                | Opt(extractorSubDir, "extractor subdirectory")["-d"]["--subdir"]("output directory of generated snippets")
-                | Opt(showLineNumbers)["-n"]["--line-number"]("show line numbers in extracts")
-                | Opt(indent, "indentation")["--indent"]("amount of indentation")
-                | Arg(sourceFile, "source file")("source file")
-                | Help(showHelp);
+    auto cli =  opt(parseOnly)["-x"]["--filter-only"]("parses input file and prints out result without snippet file generation")
+                | opt(enableEmptyLines)["--enable-empty-lines"]("enable empty lines in snippet")
+                | opt(enableSnippetDefinitions)["--enable-snippet-defs"]("enable snippet definitions in snippets")
+                | opt(enableBlockComments)["--enable-block-comments"]("enable block comments in snippets")
+                | opt(skipCallouts)["--skip-callouts"]("skip callouts")
+                | opt(printMultiSnippetDelimiter)["--skip-multi-snippet-delim"]("skip multi snippet delimiters")
+                | opt(printExcludeMarker)["--skip-exclude-marker"]("skip exclude marker")
+                | opt(skipLineHighlighting)["--skip-highlighting"]("skip source code line highlighting")
+                | opt(includeOmitted)["--include-omitted"]("include omitted lines")
+                | opt(language, "language")["-l"]["--language"]("source files language")
+                | opt(astyleOptions, "astyle options")["-a"]["--astyle"]("options passed to astyle")
+                | opt(outputFilePath, "output file path")["-o"]["--output"]("extractors output file path")
+                | opt(extractorSubDir, "extractor subdirectory")["-d"]["--subdir"]("output directory of generated snippets")
+                | opt(showLineNumbers)["-n"]["--line-number"]("show line numbers in extracts")
+                | opt(indent, "indentation")["--indent"]("amount of indentation")
+                | arg(sourceFile, "source file")("source file")
+                | help(showHelp);
 
-    auto result = cli.parse( Args( argc, argv ) );
+    auto result = cli.parse( args( argc, argv ) );
 
     if(!result)
     {
@@ -135,7 +137,13 @@ int main(int argc, char* argv[])
     }
 
     if(!std::empty(astyleOptions)){
-        generator.astyleOptions(astyleOptions);
+        std::stringstream astyleSS;
+
+        for(const auto& astyleOption : astyleOptions){
+            astyleSS << astyleOption << ',';
+        }
+
+        generator.astyleOptions(astyleSS.str());
     }
 
     if(!std::empty(outputFilePath)){
