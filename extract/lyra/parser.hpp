@@ -130,7 +130,7 @@ class parser_base
 	auto is_optional() const -> bool
 	{
 		auto c = cardinality();
-		return (std::get<0>(c) == 0) && (std::get<1>(c) >= 0);
+		return (std::get<0>(c) == 0); //&& (std::get<1>(c) >= 0);
 	}
 
 	virtual std::string get_usage_text() const { return ""; }
