@@ -32,16 +32,19 @@
 //[ test1
 int main1()
 {
+	bla(42, 42.42, 24.10321); //*=\d+(\.\d*)?
     int x = 0; // <> Initialisierung
 
     int y = 0; //-
+
+	std::string str{"The quick brown fox jumps over the lazy dog"}; //*=fox|dog
 
     return x; //* Highlight
 }
 //]
 
 //[ test6 -test5
-void bla()
+void bla(int a, double b, double c)
 {
 }
 
@@ -51,7 +54,7 @@ void foo()
 	std::stringstream ss;
 	ss << "Julius ";
 	ss << "kaufe eurer Friedel ";
-	ss << "dieses Kleid aus Krefelder Seide";
+	ss << "dieses Kleid aus Krefelder Seide"; //
 		
 	//[for -*
 	for(int i = 0; i < 10; i++){

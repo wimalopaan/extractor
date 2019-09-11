@@ -191,6 +191,7 @@ bool CppExtractor::parse()
     std::regex highlightRegex("//\\*");                                                 // match: //!
     std::regex highlightSectionIncludeRegex("\\s\\+\\*");                            // match: +*
     std::regex highlightSectionExcludeRegex("\\s-\\*");                              // match: -*
+    std::regex highlightInlineMatchRegex("//\\*=");
 
     std::string scopeSymbol{"::"};
     std::string scopeSymbolReplacement{"_"};        
@@ -218,7 +219,24 @@ bool CppExtractor::parse()
             Trace(Tracer::TraceLevel::trace) << line;
             switch(status) {
             case ParsingStatus::Normal:
-                if (std::regex_search(line, matches, highlightRegex)) {
+                if (std::regex_search(line, matches, highlightInlineMatchRegex)) {
+                    std::string hightlightRegexString{matches[0].second, line.cend()};
+                    line = std::string{line.cbegin(), matches[0].first};
+                    std::regex highlightRegexReg{hightlightRegexString};
+                    
+                    std::stringstream parsedLine;
+                    while(std::regex_search(line, matches, highlightRegexReg)){
+                        if(matches.empty() || matches.length() == 0)
+                            break;
+                        
+                        parsedLine << std::string{line.cbegin(), matches[0].first};
+                        parsedLine << "+++<mark>" << matches[0].str() << "</mark>+++";
+                        line = std::string{matches[0].second, line.cend()};                            
+                    }
+                    parsedLine << line;
+                    line = parsedLine.str();
+                }
+                else if (std::regex_search(line, matches, highlightRegex)) {
                     if(mHighlightLines){
                         mHighlightedLines.push_back(lineNumber);
                     }

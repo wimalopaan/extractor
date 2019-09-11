@@ -182,8 +182,10 @@ bool AsciidocSnippetFileGenerator::generate()
                 }
                 fileStream << "\"";
             }
+            fileStream << ",subs=\"+macros\"";
             fileStream << ",indent=" << mIndentLevel << "]\n";
             fileStream << Intro;
+            fileStream << codeLines;
             fileStream << mAStyle.formattedCText(codeLines).get();
             fileStream << Extro;
             if (!mSkipCallouts) {
