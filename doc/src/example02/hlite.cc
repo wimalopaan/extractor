@@ -16,12 +16,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+//[ LineHighlighting
 #include <algorithm>
-#include <memory> //! Highlight
+#include <memory> //* Highlight
 int main() {
     int x = 0;
     int y = 0;
-    return x + y; //! Highlight
+    return x + y; //* Highlight
 }
-int foo() { return 1;} //!
+//]
 
+//[ SectionExcludeHighlighting +*
+void bar(){
+    std::size_t result{0};
+
+    for(std::size_t i{0}; i < 100; ++i){
+
+        //[if -*
+        if(i % 2 == 0){
+            result += i;
+        }
+        //]
+
+    }
+}
+//]
