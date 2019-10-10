@@ -33,7 +33,7 @@ help: ../../../extract/extractor
 	$(EXTRACTOR) -h > $@
 
 %.cc.extract2: %.cc
-	$(EXTRACTOR) -l cpp -a A2 --skip-callouts --skip-multi-snippet-delim -d .ex2 -o $@ $<
+	$(EXTRACTOR) -l cpp -a A2 --skip-callouts --print-multi-snippet-delim -d .ex2 -o $@ $<
 	
 #$(EXTRACTOR) -lcpp -aA2 --sc --sm -d.ex2 -o$@ $<
 
