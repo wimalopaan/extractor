@@ -44,16 +44,16 @@ endif::[]
 {counter2:diagram:0}
 
 // user defined
-:snippet-caption: Quellcodeabschnitt
-:output-caption: Ausgabe
-:shell-caption: Kommando
-:plantuml-caption: UML-Graph
-:diagram-caption: Diagramm
+:snippet-caption: Sourcecode snippet:
+:output-caption: Output:
+:shell-caption: Command:
+:plantuml-caption: UML-Graph:
+:diagram-caption: Diagram:
 
 // build-in
-:listing-caption: Quelltext
-:table-caption: Tabelle
-:figure-caption: Bild
+:listing-caption: Sourcecode:
+:table-caption: Table:
+:figure-caption: Image:
 
 // Doku
 :stdstring: http://{cppdocbase}/string/basic_string[std::string]

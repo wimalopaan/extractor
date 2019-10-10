@@ -98,7 +98,7 @@ Download the souce from http://sourceforge.net/p/osscourse/git/ci/master/tree[so
 
 On Linux you simply compile the sources using make:
 
-.{shell-caption}{counter:shell}.
+.{shell-caption} {counter:shell}.
 [source, shell]
 ----
 $ make all
@@ -158,7 +158,7 @@ include::{srcbase}/{srcdir}/test.cc[]
 
 Then you run the `extractor` for your file link:{srcbase}/{srcdir}/test.cc.html[test.cc,window="_new"]:
 
-.{shell-caption}{counter:shell}.
+.{shell-caption} {counter:shell}.
 [source, shell]
 ----
 $ extractor test.cc
@@ -550,7 +550,7 @@ Option:: Description
 `--enable-snippet-defs`:: enables snippet definitions within snippets
 `--enable-block-comments`::enables block comments in snippets
 `--skip-callouts`:: skips callouts
-`--print-multi-snippet-delim`:: TODO
+`--print-multi-snippet-delim`:: prints multi snippet delimiters
 `--skip-exclude-marker`:: skips exclude markers
 `--skip-highlighting`:: skips highlighting
 `-l`, `--language`:: source file language
@@ -634,6 +634,6 @@ As you work with {extractor} you'll surely notice, that there are (many) missing
 that these feature aren't relevant for me at the moment. If you need one of the following, it should be simple to
 add them. Please inform me if you are working on creating a patch.
 
-* setting the text between continued snippets (`// .. lines omitted ...`).
+* setting the text between continued snippets (`// ... lines omitted ...`).
 * customization of the texts shown in captions if snippets are used.
 * customization of the texts shown in captions if omitted lines are used.
