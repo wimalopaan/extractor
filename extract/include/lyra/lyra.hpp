@@ -7,10 +7,13 @@
 #ifndef LYRA_LYRA_HPP
 #define LYRA_LYRA_HPP
 
-#include "help.hpp"
-#include "arg.hpp"
-#include "opt.hpp"
-#include "cli_parser.hpp"
-#include "exe_name.hpp"
+#include "lyra/arg.hpp"
+#include "lyra/cli_parser.hpp"
+#include "lyra/exe_name.hpp"
+#include "lyra/help.hpp"
+#include "lyra/opt.hpp"
+#include "lyra/parser.hpp"
+#include "lyra/parser_result.hpp"
+#include "lyra/version.hpp"
 
 #endif // LYRA_HPP_INCLUDED

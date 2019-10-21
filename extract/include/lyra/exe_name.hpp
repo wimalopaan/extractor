@@ -7,10 +7,10 @@
 #ifndef LYRA_EXE_NAME_HPP
 #define LYRA_EXE_NAME_HPP
 
-#include "detail/bound.hpp"
-#include "detail/tokens.hpp"
-#include "parser.hpp"
-#include "parser_result.hpp"
+#include "lyra/detail/bound.hpp"
+#include "lyra/detail/tokens.hpp"
+#include "lyra/parser.hpp"
+#include "lyra/parser_result.hpp"
 
 namespace lyra
 {
@@ -42,7 +42,9 @@ class exe_name : public composable_parser<exe_name>
 
 	// The exe name is not parsed out of the normal tokens, but is handled
 	// specially
-	parse_result parse(std::string const&, detail::token_iterator const& tokens, parser_customization const&) const override
+	virtual parse_result parse(
+		std::string const&, detail::token_iterator const& tokens,
+		parser_customization const&) const override
 	{
 		return parse_result::ok(
 			detail::parse_state(parser_result_type::no_match, tokens));
@@ -75,7 +77,7 @@ Constructs with a target string to receive the name of the executable. When
 the `cli_parser` is run the target string will contain the exec name.
 
 end::reference[] */
-exe_name::exe_name(std::string& ref)
+inline exe_name::exe_name(std::string& ref)
 	: exe_name()
 {
 	m_ref = std::make_shared<detail::BoundValueRef<std::string>>(ref);
@@ -120,10 +122,7 @@ Returns the executable name when available. Otherwise it returns a default
 value.
 
 end::reference[] */
-std::string exe_name::name() const
-{
-	return *m_name;
-}
+inline std::string exe_name::name() const { return *m_name; }
 
 /* tag::reference[]
 
@@ -139,7 +138,7 @@ Sets the executable name with the `newName` value. The new value is reflected
 in the bound string reference or callback.
 
 end::reference[] */
-parser_result exe_name::set(std::string const& newName)
+inline parser_result exe_name::set(std::string const& newName)
 {
 	auto lastSlash = newName.find_last_of("\\/");
 	auto filename = (lastSlash == std::string::npos)

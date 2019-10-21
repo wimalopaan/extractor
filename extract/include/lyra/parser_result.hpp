@@ -7,7 +7,7 @@
 #ifndef LYRA_PARSER_RESULT_HPP
 #define LYRA_PARSER_RESULT_HPP
 
-#include "detail/result.hpp"
+#include "lyra/detail/result.hpp"
 
 namespace lyra
 {
@@ -15,10 +15,10 @@ namespace lyra
 // enum of result types from a parse
 enum class parser_result_type
 {
-    matched,
-    no_match,
-    short_circuit_all,
-    short_circuit_same
+	matched,
+	no_match,
+	short_circuit_all,
+	short_circuit_same
 };
 
 using result = detail::basic_result<void>;

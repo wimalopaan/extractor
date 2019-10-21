@@ -7,8 +7,8 @@
 #ifndef LYRA_CLI_PARSER_HPP
 #define LYRA_CLI_PARSER_HPP
 
-#include "parser.hpp"
-#include "exe_name.hpp"
+#include "lyra/exe_name.hpp"
+#include "lyra/parser.hpp"
 
 namespace lyra
 {
@@ -33,14 +33,13 @@ cli |= lyra::opt(when. "when")["--time"]("When to do <what>.").optional();
 class cli_parser : parser_base
 {
 	public:
-
 	cli_parser() = default;
 
 	// Copy construction, needs to copy the exe name and the composed parsers.
 	cli_parser(const cli_parser& other)
 		: m_exeName(other.m_exeName)
 	{
-		for (auto & other_parser: other.m_parsers)
+		for (auto& other_parser : other.m_parsers)
 		{
 			m_parsers.push_back(other_parser->clone());
 		}
@@ -63,7 +62,7 @@ class cli_parser : parser_base
 	// Compose the parsers from another `cli_parser`.
 	cli_parser& operator|=(cli_parser const& other)
 	{
-		for (auto & p: other.m_parsers)
+		for (auto& p : other.m_parsers)
 		{
 			m_parsers.push_back(p->clone());
 		}
@@ -101,16 +100,19 @@ class cli_parser : parser_base
 		for (auto const& p : m_parsers)
 		{
 			auto result = p->validate();
-			if (!result)
-				return result;
+			if (!result) return result;
 		}
 		return result::ok();
 	}
 
-	using parser_base::parse;
+	parse_result parse(
+		args const& args,
+		parser_customization const& customize
+		= default_parser_customization()) const;
 
-	auto parse(std::string const& exe_name, detail::token_iterator const& tokens, parser_customization const& customize) const
-		-> parse_result override
+	parse_result parse(
+		std::string const& exe_name, detail::token_iterator const& tokens,
+		parser_customization const& customize) const override
 	{
 		struct ParserInfo
 		{
@@ -120,8 +122,7 @@ class cli_parser : parser_base
 		std::vector<ParserInfo> parseInfos(m_parsers.size());
 		{
 			size_t i = 0;
-			for (auto const& p : m_parsers)
-				parseInfos[i++].parser = p.get();
+			for (auto const& p : m_parsers) parseInfos[i++].parser = p.get();
 		}
 
 		m_exeName.set(exe_name);
@@ -132,14 +133,15 @@ class cli_parser : parser_base
 		{
 			bool tokenParsed = false;
 
-			for (auto & parseInfo : parseInfos)
+			for (auto& parseInfo : parseInfos)
 			{
-				if (parseInfo.parser->cardinality_count() == 0 || parseInfo.count < parseInfo.parser->cardinality_count())
+				auto parser_cardinality = parseInfo.parser->cardinality();
+				if (parser_cardinality.is_unbounded()
+					|| parseInfo.count < parser_cardinality.maximum)
 				{
 					result = parseInfo.parser->parse(
 						exe_name, result.value().remainingTokens(), customize);
-					if (!result)
-						return result;
+					if (!result) return result;
 					if (result.value().type() != parser_result_type::no_match)
 					{
 						tokenParsed = true;
@@ -153,12 +155,16 @@ class cli_parser : parser_base
 				return result;
 			if (!tokenParsed)
 				return parse_result::runtimeError(
-					"Unrecognized token: " + result.value().remainingTokens()->name);
+					"Unrecognized token: "
+					+ result.value().remainingTokens()->name);
 		}
 		// Check missing required options.
-		for (auto & parseInfo : parseInfos)
+		for (auto& parseInfo : parseInfos)
 		{
-			if (!parseInfo.parser->is_optional() && parseInfo.count == 0)
+			auto parser_cardinality = parseInfo.parser->cardinality();
+			if (parser_cardinality.is_bounded()
+				&& (parseInfo.count < parser_cardinality.minimum
+					|| parser_cardinality.maximum < parseInfo.count))
 			{
 				return parse_result::runtimeError(
 					"Expected: " + parseInfo.parser->get_usage_text());
@@ -181,16 +187,16 @@ class cli_parser : parser_base
 		if (!m_exeName.name().empty())
 		{
 			os << "Usage:\n"
-				<< "  " << m_exeName.name();
+			   << "  " << m_exeName.name();
 			for (auto const& p : m_parsers)
 			{
 				std::string usage_test = p->get_usage_text();
 				if (usage_test.size() > 0)
 				{
 					os << " ";
-					if (p->is_optional()) os << "[" ;
-					os << usage_test ;
-					if (p->is_optional()) os << "]" ;
+					if (p->is_optional()) os << "[";
+					os << usage_test;
+					if (p->is_optional()) os << "]";
 				}
 			}
 			os << "\n\n";
@@ -209,6 +215,30 @@ cli_parser operator|(composable_parser<DerivedT> const& thing, T const& other)
 {
 	return cli_parser() | static_cast<DerivedT const&>(thing) | other;
 }
+
+/* tag::reference[]
+[source]
+----
+cli_parser::parse_result cli_parser::parse(
+	args const& args, parser_customization const& customize) const;
+----
+
+Parses given arguments `args` and optional parser customization `customize`.
+The result indicates success or failure, and if failure what kind of failure
+it was. The state of variables bound to options is unspecified and any bound
+callbacks may have been called.
+
+end::reference[] */
+inline cli_parser::parse_result
+cli_parser::parse(args const& args, parser_customization const& customize) const
+{
+	return parse(
+		args.exe_name(),
+		detail::token_iterator(
+			args, customize.token_delimiters(), customize.option_prefix()),
+		customize);
 }
+
+} // namespace lyra
 
 #endif
