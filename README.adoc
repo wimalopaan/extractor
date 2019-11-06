@@ -136,10 +136,6 @@ $ make all
 
 Optional you can also add the "installation_home/extract" to your PATH environment variable so that you may start {extractor} from any directory.
 
-==== MacOS
-
-Coming soon.
-
 ==== Windows
 ===== Windows 10
 
@@ -154,16 +150,35 @@ The following example will show the basic idea behind {extractor}.
 
 Suppose you'll document the following very simple `C++` example:
 
-include::{srcbase}/{srcdir}/{extractordir}/test.cc.all[]
+.Zeilen aus der Datei link:{srcbase}/{srcdir}/test.cc.html[`test.cc`,window="newwindows"]  
+[source,cpp,indent=0]
+----
+#include <iostream>
+#include <iomanip>
+int main() {
+    return EXIT_SUCCESS;
+}
+----
 
 It could be that you want to describe the portion of the souce file where the `include` directives are 
 in a special way. Therefore it would be nice to _extract_ that part of the file like:
 
-include::{srcbase}/{srcdir}/{extractordir}/test.cc.include[]
+.Zeilen aus der Datei link:{srcbase}/{srcdir}/test.cc.html[`test.cc`,window="newwindows"] [Snippet: include] 
+[source,cpp,indent=0]
+----
+#include <iostream>
+#include <iomanip>
+----
 
 In a later section of your documentation you want to emphasize the `int main()` function:
 
-include::{srcbase}/{srcdir}/{extractordir}/test.cc.main[]
+.Zeilen aus der Datei link:{srcbase}/{srcdir}/test.cc.html[`test.cc`,window="newwindows"] [Snippet: main] 
+[source,cpp,indent=0]
+----
+int main() {
+    return EXIT_SUCCESS;
+}
+----
 
 For this to be possible without copying manually anything from your sources you have to _mark_ these
 parts directly _in_ your sources. These parts are called <<snippets, snippets>>.
@@ -187,7 +202,16 @@ With this you can _annotate_ your _real_ source code with the neccessary snippet
 .The file link:{srcbase}/{srcdir}/test.cc.html[`test.cc`,window="_new"] with the source snippets `include` and `main`
 [source,cpp,indent=0]
 ----
-include::{srcbase}/{srcdir}/test.cc[]
+//[include
+#include <iostream>
+#include <iomanip>
+//]
+//[main
+int main()
+{
+    return EXIT_SUCCESS;
+}
+//]
 ----
 
 Then you run the `extractor` for your file link:{srcbase}/{srcdir}/test.cc.html[test.cc,window="_new"]:
@@ -203,19 +227,15 @@ The outcome from this is the file link:{srcbase}/{srcdir}/test.extractor[test.ex
 .The Content of the snippet database file 
 [source, snippetdatabase]
 ----
-include::{srcbase}/{srcdir}/test.extractor[]
+Snippet [ all [ ( 0 , 6 ) ] exclude [  ] ] 
+Snippet [ include [ ( 0 , 2 ) ] exclude [  ] ] 
+Snippet [ main [ ( 2 , 6 ) ] exclude [  ] ] 
 ----
 
 At the moment this file isn't very useful (except if you want to <<make, automate>> building the whole documentation, 
 this file will become very handy), but if you look carefully into the directory of the file `test.cc` 
-you'll find a newly created directory named `.extractor`:
-
-[role="output"]
-....
-include::{srcbase}/{srcdir}/contents[]
-....
-
-These files contain the snippets, e.g. the file `test.cc.main` obviously contains the snippet `main` of 
+you'll find a newly created directory named `.extractor`.
+The files within this directory contain the snippets, e.g. the file `test.cc.main` obviously contains the snippet `main` of 
 file `test.cc`. The file `test.cc.all` contains the _full_ file `test.cc` but without the snippet definitions.
 
 In your {adoctor} documentation files you can include these snippet files.
@@ -230,7 +250,14 @@ The content of a snippet file is asciidoc:
 
 [source,asciidoc]
 ....
-include::{srcbase}/{srcdir}/{extractordir}/test.cc.main[]
+.Zeilen aus der Datei link:{srcbase}/{srcdir}/test.cc.html[`test.cc`,window="newwindows"] 
+[Snippet: main] 
+[source,cpp,indent=0]
+----
+int main() {
+    return EXIT_SUCCESS;
+}
+----
 ....
 
 [TIP]
@@ -244,6 +271,12 @@ If the snippet contains _auto-callouts_ these will also be collected into the sn
 
 If you use the above `include` macro in your documentation you'll get the following result:
 
-include::{srcbase}/{srcdir}/{extractordir}/test.cc.main[]
+.Zeilen aus der Datei link:{srcbase}/{srcdir}/test.cc.html[`test.cc`,window="newwindows"] [Snippet: main] 
+[source,cpp,indent=0]
+----
+int main() {
+    return EXIT_SUCCESS;
+}
+----
 
 For further more detailed information about extractor and his various features read the documentation.
