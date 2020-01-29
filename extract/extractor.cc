@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
     bool enableSnippetDefinitions{false};
     bool skipCallouts{false};
     bool printMultiSnippetDelimiter{false};
-    bool printExcludeMarker{false};
+    bool skipExcludeMarker{false};
     bool skipLineHighlighting{false};
     bool enableEmptyLines{false};
     bool enableBlockComments{false};
@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
                 | opt(enableBlockComments)["--enable-block-comments"]("enable block comments in snippets")
                 | opt(skipCallouts)["--skip-callouts"]("skip callouts")
                 | opt(printMultiSnippetDelimiter)["--print-multi-snippet-delim"]("prints multi snippet delimiters")
-                | opt(printExcludeMarker)["--print-exclude-marker"]("prints exclude marker")
+                | opt(skipExcludeMarker)["--skip-exclude-marker"]("skips printing of exclude markers")
                 | opt(skipLineHighlighting)["--skip-highlighting"]("skip source code line highlighting")
                 | opt(includeOmitted)["--include-omitted"]("include omitted lines")
                 | opt(language, "language")["-l"]["--language"]("source files language")
@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
         .skipBlockComments(!enableBlockComments)
         .skipCallouts(skipCallouts)
         .printMultiSnippetDelimiter(printMultiSnippetDelimiter)
-        .printExcludeMarker(printExcludeMarker)
+        .printExcludeMarker(!skipExcludeMarker)
         .highlightLines(!skipLineHighlighting)
         .includeOmitted(includeOmitted)
         .lineNumbers(showLineNumbers);

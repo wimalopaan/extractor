@@ -551,7 +551,7 @@ Option:: Description
 `--enable-block-comments`::enables block comments in snippets
 `--skip-callouts`:: skips callouts
 `--print-multi-snippet-delim`:: prints multi snippet delimiters
-`--print-exclude-marker`:: prints exclude markers
+`--skip-exclude-marker`:: skips printing of exclude markers
 `--skip-highlighting`:: skips highlighting
 `-l`, `--language`:: source file language
 `-a`, `--astyle`:: options passed to astyle
