@@ -22,44 +22,56 @@
 
 #include "asciidocasmgenerator.h"
 #include "commandlineparser.h"
+#include "lyra/lyra.hpp"
 #include "filemagic.h"
 #include "tracer.h"
 
+using namespace lyra;
+
 int main(int argc, const char** argv) {
     trace().setTraceLevel(Tracer::TraceLevel::error);
-    CommandLineParser clp;
-    clp.add({"h", "help"});
-    clp.add({"v", "verbose"});
-    clp.add(CommandLineOption({"o", "output"}, true));
-    clp.add({"n", "linenumbers"});
-
-    clp.parse(argc, argv);
     
-    if (!clp.invalidOptions().empty()) {
-        for(const CommandLineOption& o: clp.invalidOptions()) {
-            std::cerr << "invalid option: " << o.names().front() << std::endl;
-        }
+    bool parseOnly{false};
+    bool showHelp{false};
+    bool showLineNumbers{false};
+    std::string outputFilePath;
+    std::string sourceFile;
+    
+    auto cli =  opt(parseOnly)["-x"]["--filter-only"]("parses input file and prints out result without snippet file generation")
+                | opt(showLineNumbers)["-n"]["--line-number"]("show line numbers in extracts")
+                | opt(outputFilePath, "output file path")["-o"]["--output"]("extractors output file path")
+                | arg(sourceFile, "source file")("source file")
+                | help(showHelp);
+    
+    auto result = cli.parse( args( argc, argv ) );
+    
+    if(!result) {
+        std::cerr << "Error in command line: " << result.errorMessage() << std::endl;
+        return EXIT_FAILURE;
     }
-
-    if (CommandLineOption ho = clp.option("h")) {
-        std::cout << __cplusplus << std::endl;
-        std::cout << clp;
+    
+    if(showHelp) {
+        std::cout << cli << std::endl;
         return EXIT_SUCCESS;
     }
-    if (CommandLineOption vo = clp.option("v")) {
-        trace().setTraceLevel(Tracer::TraceLevel::trace);
-        Trace(Tracer::TraceLevel::trace) << vo;
+    
+    if(std::empty(sourceFile)){
+        std::cout << "No source file defined" << std::endl;
+        std::cout << cli << std::endl;
+        return EXIT_FAILURE;
     }
-
-    for(const auto& f: clp.positionals()) {
-        AsciidocAsmGenerator asmGenerator(f);
-        if (CommandLineOption oo = clp.option("o")) {
-            asmGenerator.outputFilePath(oo.value());
-        }
-        if (CommandLineOption ln = clp.option("n")) {
-            asmGenerator.lineNumbers(true);
-        }
-        asmGenerator.generate();
-    }    
+    //    if (CommandLineOption vo = clp.option("v")) {
+    //        trace().setTraceLevel(Tracer::TraceLevel::trace);
+    //        Trace(Tracer::TraceLevel::trace) << vo;
+    //    }
+    
+    AsciidocAsmGenerator asmGenerator(sourceFile);
+    if(!std::empty(outputFilePath)){
+        asmGenerator.outputFilePath(outputFilePath);
+    }
+    if (showLineNumbers) {
+        asmGenerator.lineNumbers(true);
+    }
+    asmGenerator.generate();
     return EXIT_SUCCESS;
 }
