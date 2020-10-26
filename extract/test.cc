@@ -43,6 +43,20 @@ int main1()
 }
 //]
 
+//[ raz -ul
+void raz(){
+	int x; 
+	int y;
+	int z;
+
+	//[ ul : Not shown for test purposes
+	for(int i = 0; i < 100; ++i){
+		std::cout << i << std::endl;
+	}
+	//]
+}
+//]
+
 //[ test6 -test5
 void bla(int a, double b, double c)
 {
