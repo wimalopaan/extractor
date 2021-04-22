@@ -182,21 +182,23 @@ CppExtractor& CppExtractor::skipEmptyLines(bool skip)
 
 bool CppExtractor::parse()
 {
-    std::regex startBlockComment("^\\s*/\\*([^+]|\\s*$)");                              // match: $<ws>/* (bei folgendem + wird der Kommentar drin gelassen)
-    std::regex endBlockComment("^\\s*\\*/");                                            // match: $<ws>*/
-    std::regex callOutRegex("//\\s*(<([0-9]*)>)\\s*(.*)");                              // match: //<ws><<CoNumber>><ws><CoText>
-    std::regex snippetStartRegex2("^\\s*//\\[");                                        // match: $<ws>//[
-    std::regex snippetEndRegex("^\\s*//\\]");                                           // match: $<ws>//]
-    std::regex omitLineRegex("//-\\s*$");                                               // match: //-
-    std::regex highlightRegex("//\\*");                                                 // match: //!
-    std::regex highlightSectionIncludeRegex("\\s\\+\\*");                            // match: +*
-    std::regex highlightSectionExcludeRegex("\\s-\\*");                              // match: -*
-    //std::regex highlightInlineMatchRegex("//\\*=");
-
+//    std::regex startBlockComment(R"(^\s*/\*([^+]|\s*$))");                              // match: $<ws>/* (bei folgendem + wird der Kommentar drin gelassen)
+    std::regex startBlockComment(R"(^\s*/\*[^+]{0,1}\s*$)");                              // match: $<ws>/* (bei folgendem + wird der Kommentar drin gelassen)
+    std::regex endBlockComment(R"(^\s*\*/)");                                            // match: $<ws>*/
+    std::regex callOutRegex(R"(//\s*(<([0-9]*)>)\s*(.*))");                              // match: //<ws><<CoNumber>><ws><CoText>
+    std::regex snippetStartRegex(R"(^\s*//\[)");                                        // match: $<ws>//[
+    std::regex snippetEndRegex(R"(^\s*//\])");                                           // match: $<ws>//]
+    std::regex omitLineRegex(R"(//-\s*$)");                                               // match: //-
+    std::regex highlightRegex(R"(//\*)");                                                 // match: //*
+    std::regex highlightSectionIncludeRegex(R"(\s\+\*)");                            // match: +*
+    std::regex highlightSectionExcludeRegex(R"(\s-\*)");                              // match: -*
+//    std::regex highlightInlineMatchRegex(R"(//\*=)");
     std::string scopeSymbol{"::"};
     std::string scopeSymbolReplacement{"_"};        
 
-
+    Trace(Tracer::TraceLevel::trace) << "skip block comments" << mSkipBlockComments;
+    
+    
     std::ifstream fileStream(mPath.string());
     if (fileStream.is_open()) {
         auto status = ParsingStatus::Normal;
@@ -219,23 +221,6 @@ bool CppExtractor::parse()
             Trace(Tracer::TraceLevel::trace) << line;
             switch(status) {
             case ParsingStatus::Normal:
-                /*if (std::regex_search(line, matches, highlightInlineMatchRegex)) {
-                    std::string hightlightRegexString{matches[0].second, line.cend()};
-                    line = std::string{line.cbegin(), matches[0].first};
-                    std::regex highlightRegexReg{hightlightRegexString};
-                    
-                    std::stringstream parsedLine;
-                    while(std::regex_search(line, matches, highlightRegexReg)){
-                        if(matches.empty() || matches.length() == 0)
-                            break;
-                        
-                        parsedLine << std::string{line.cbegin(), matches[0].first};
-                        parsedLine << "+++<mark>" << matches[0].str() << "</mark>+++";
-                        line = std::string{matches[0].second, line.cend()};                            
-                    }
-                    parsedLine << line;
-                    line = parsedLine.str();
-                }*/
                 if (std::regex_search(line, matches, highlightRegex)) {
                     if(mHighlightLines){
                         mHighlightedLines.push_back(lineNumber);
@@ -255,6 +240,7 @@ bool CppExtractor::parse()
                     }
                 }
                 if (mSkipBlockComments && std::regex_search(line, startBlockComment)) {
+                    Trace(Tracer::TraceLevel::trace) << "block comment start";
                     status = ParsingStatus::BlockComment;
                     continue;
                 }
@@ -268,7 +254,7 @@ bool CppExtractor::parse()
                                 number, matches[3], static_cast<size_t>(matches[0].first - line.begin())};
                 }
             }
-            else if (std::regex_search(line, matches, snippetStartRegex2)) {
+            else if (std::regex_search(line, matches, snippetStartRegex)) {
 
                 std::string remainingLine(matches[0].second, line.cend());
                 boost::trim(remainingLine); // split retains leading whitespace
@@ -382,6 +368,7 @@ bool CppExtractor::parse()
             break;
             case ParsingStatus::BlockComment:
                 if (mSkipBlockComments && std::regex_search(line, endBlockComment)) {
+                    Trace(Tracer::TraceLevel::trace) << "block comment end";
                     status = ParsingStatus::Normal;
                 }
                 continue;

@@ -15,7 +15,7 @@ ifeq (${CXX}, clang++)
 else
 # CXXFLAGS += -g -Wall -Wextra -Wconversion -pedantic -std=c++17 -fdiagnostics-color
  #CXXFLAGS += -g -Wall -Wextra -Wconversion -fconcepts -std=c++17 
- CXXFLAGS += -g -Wall -Wextra -Wconversion -std=c++2a -fPIC
+ CXXFLAGS += -g -Wall -Wextra -Wconversion -std=c++20 -fPIC
 endif
 
 ifdef NDEBUG
