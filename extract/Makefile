@@ -5,7 +5,7 @@ targets = extractor axtractor avrasmopt
 
 #CXX = clang++
 #CXX = /usr/local/bin/g++
-CXX = g++
+CXX = /usr/bin/g++
 
 export LC_ALL=C
 

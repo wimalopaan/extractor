@@ -3,7 +3,7 @@
 targets = libwm.so libwm.a libwmtests
 
 #CXX = clang++
-CXX = g++
+CXX = /usr/bin/g++
 
 export LC_ALL=C
 
