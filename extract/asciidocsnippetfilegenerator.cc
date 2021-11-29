@@ -49,10 +49,22 @@ bool AsciidocSnippetFileGenerator::generate()
     std::ofstream formattedFile{formattedFilePath.string()};
     std::string formattedFileContent{std::istreambuf_iterator<char>(original), std::istreambuf_iterator<char>()};
 
-    formattedFile << mAStyle.formattedCText(formattedFileContent).get();
+    if ((mLanguage == "none") || (mLanguage == "lua")) {
+        Trace(Tracer::TraceLevel::debug) << "Language: None";        
+        formattedFile << formattedFileContent;        
+    }
+    else {
+        formattedFile << mAStyle.formattedCText(formattedFileContent).get();
+    }
+    
     formattedFile.close();
 
-    mExtractor.path(formattedFilePath);
+    if ((mLanguage == "none") || (mLanguage == "lua")) {
+        mExtractor.path(originalFilePath);        
+    }
+    else {
+        mExtractor.path(formattedFilePath);
+    }
 
     if (!mExtractor.parse()) {
         return false;
@@ -100,6 +112,7 @@ bool AsciidocSnippetFileGenerator::generate()
 
         std::ofstream fileStream(snippetFilePath.string());
         if (fileStream.is_open()) {
+            
             auto coNumber = size_t{1};
             if (!mSkipSourceCaption) {
                 std::string caption = boost::replace_all_copy(mCaption, "%f", originalFilePath.filename().string());
@@ -184,7 +197,12 @@ bool AsciidocSnippetFileGenerator::generate()
             }
             fileStream << ",indent=" << mIndentLevel << "]\n";
             fileStream << Intro;
-            fileStream << mAStyle.formattedCText(codeLines).get();
+            if ((mLanguage == "lua") || (mLanguage == "none")) {
+                fileStream << codeLines;
+            }
+            else {
+                fileStream << mAStyle.formattedCText(codeLines).get();
+            }
             fileStream << Extro;
             if (!mSkipCallouts) {
                 if (calloutLineNumbers.size() > 0) {
@@ -246,6 +264,10 @@ AsciidocSnippetFileGenerator& AsciidocSnippetFileGenerator::language(const std::
     Trace(Tracer::TraceLevel::trace) << language;
     mLanguage = language;
     mAStyle.setLanguage(mLanguage);
+    
+    if (mLanguage == "lua") {
+        mExtractor.activateLua();
+    }
     return *this;
 }
 

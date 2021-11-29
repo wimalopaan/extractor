@@ -95,6 +95,7 @@ public:
 
     bool hasOmittedLines() const;
 
+    void activateLua();
 private:
     std::filesystem::path mPath;
     bool mSkipBlockComments{true};
@@ -108,6 +109,8 @@ private:
     std::map<size_t, CallOut> mCallOuts; // lineNumber -> CallOut
     std::map<std::string, Snippet> mSnippets; // snippetName -> Snippet
     std::vector<size_t> mHighlightedLines;
+    
+    bool mLua{false};
 };
 
 std::ostream& operator<<(std::ostream& out, const CppExtractor::CallOut&);

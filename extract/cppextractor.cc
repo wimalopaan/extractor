@@ -180,14 +180,23 @@ CppExtractor& CppExtractor::skipEmptyLines(bool skip)
     return *this;
 }
 
+void CppExtractor::activateLua() {
+    mLua = true;
+}
+
 bool CppExtractor::parse()
 {
 //    std::regex startBlockComment(R"(^\s*/\*([^+]|\s*$))");                              // match: $<ws>/* (bei folgendem + wird der Kommentar drin gelassen)
     std::regex startBlockComment(R"(^\s*/\*[^+]{0,1}\s*$)");                              // match: $<ws>/* (bei folgendem + wird der Kommentar drin gelassen)
+    std::regex startBlockCommentLua(R"(^\s*--\[\[[^+]{0,1}\s*$)");                              // match: $<ws>/* (bei folgendem + wird der Kommentar drin gelassen)
     std::regex endBlockComment(R"(^\s*\*/)");                                            // match: $<ws>*/
+    std::regex endBlockCommentLua(R"(^\s*--\]\])");                                            // match: $<ws>*/
     std::regex callOutRegex(R"(//\s*(<([0-9]*)>)\s*(.*))");                              // match: //<ws><<CoNumber>><ws><CoText>
+    std::regex callOutRegexLua(R"(--\s*(<([0-9]*)>)\s*(.*))");                              // match: //<ws><<CoNumber>><ws><CoText>
     std::regex snippetStartRegex(R"(^\s*//\[)");                                        // match: $<ws>//[
+    std::regex snippetStartRegexLua(R"(^\s*--\{)");                                        // match: $<ws>//[
     std::regex snippetEndRegex(R"(^\s*//\])");                                           // match: $<ws>//]
+    std::regex snippetEndRegexLua(R"(^\s*--\})");                                           // match: $<ws>//]
     std::regex omitLineRegex(R"(//-\s*$)");                                               // match: //-
     std::regex highlightRegex(R"(//\*)");                                                 // match: //*
     std::regex highlightSectionIncludeRegex(R"(\s\+\*)");                            // match: +*
@@ -196,8 +205,15 @@ bool CppExtractor::parse()
     std::string scopeSymbol{"::"};
     std::string scopeSymbolReplacement{"_"};        
 
-    Trace(Tracer::TraceLevel::trace) << "skip block comments" << mSkipBlockComments;
+    if (mLua) {
+        startBlockComment = startBlockCommentLua;
+        endBlockComment = endBlockCommentLua;
+        callOutRegex = callOutRegexLua;
+        snippetStartRegex = snippetStartRegexLua;
+        snippetEndRegex = snippetEndRegexLua;
+    }
     
+    Trace(Tracer::TraceLevel::trace) << "skip block comments" << mSkipBlockComments;
     
     std::ifstream fileStream(mPath.string());
     if (fileStream.is_open()) {
@@ -461,7 +477,7 @@ CppExtractor::Snippet::operator bool() const
 
 bool CppExtractor::Snippet::containsLine(size_t lineNumber) const
 {
-    for(const auto lineSpan: mLineSpans) {
+    for(const auto& lineSpan: mLineSpans) {
         if ((lineNumber >= lineSpan.first) && (lineNumber < lineSpan.second)) {
             return true;
         }
