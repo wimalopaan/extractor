@@ -21,7 +21,7 @@
 #include <string>
 
 #include "asciidocasmgenerator.h"
-#include "commandlineparser.h"
+//#include "commandlineparser.h"
 #include "lyra/lyra.hpp"
 #include "filemagic.h"
 #include "tracer.h"

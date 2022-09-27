@@ -27,7 +27,7 @@
 
 #include "cppextractor.h"
 #include "asciidocsnippetfilegenerator.h"
-#include "commandlineparser.h"
+//#include "commandlineparser.h"
 #include "lyra/lyra.hpp"
 #include "filemagic.h"
 #include "tracer.h"

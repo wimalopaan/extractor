@@ -28,8 +28,6 @@ extract/astyle.cc
 extract/astyle.h
 extract/avrasmopt.cc
 extract/axtractor.cc
-extract/clara.hpp
-extract/clara_textflow.hpp
 extract/commandlineoption.cc
 extract/commandlineoption.h
 extract/commandlineparser.cc
