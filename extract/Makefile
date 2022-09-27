@@ -28,9 +28,9 @@ CPPFLAGS += -I./lyra
 
 LDLIBS += -lm -lstdc++ -lstdc++fs
 #LDLIBS += -lboost_system # -lboost_filesystem  -lboost_program_options
-LDLIBS += -lmagic
 LDLIBS += -lastyle
 LDLIBS += ../libwm/libwm.a
+LDLIBS += -lmagic
 
 all: $(targets) ${subdirs}
 

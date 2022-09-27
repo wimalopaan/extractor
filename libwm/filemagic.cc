@@ -21,8 +21,6 @@
 #include <iostream>
 #include <regex>
 
-//#include <boost/filesystem.hpp>
-
 #include <magic.h>
 
 #define NO_TRACE
@@ -40,8 +38,7 @@ public:
             mMagic = magic_open(MAGIC_SYMLINK | MAGIC_MIME | MAGIC_ERROR);
         }
         if (mMagic && !mLoaded) {
-            int err = magic_load(mMagic, nullptr);
-            if (err) {
+            if (int err = magic_load(mMagic, nullptr); err) {
                 std::cerr << magic_error(mMagic) << std::endl;
             }
             else {
@@ -57,13 +54,13 @@ public:
         if (!std::filesystem::exists(filename)) {
             return std::optional<std::string>();
         }
-
-        const char* m = magic_file(mMagic, filename.c_str());
-        if (!m) {
+        if (const char* const m = magic_file(mMagic, filename.c_str()); !m) {
             std::cerr << magic_error(mMagic) << std::endl;
             return std::optional<std::string>();
         }
-        return std::string(m);
+        else {
+            return std::string(m);
+        }
     }
     ~FileMagicImpl() {
         TRACE;
@@ -72,12 +69,12 @@ public:
         }
     }
 private:
-    static magic_t mMagic;
-    static bool mLoaded;
+    inline static magic_t mMagic{nullptr};
+    inline static bool mLoaded{false};
 };
 
-magic_t FileMagicImpl::mMagic = nullptr;
-bool FileMagicImpl::mLoaded = false;
+//magic_t FileMagicImpl::mMagic = nullptr;
+//bool FileMagicImpl::mLoaded = false;
 
 static FileMagicImpl mImpl;
 

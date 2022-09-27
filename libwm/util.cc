@@ -32,14 +32,14 @@ void replace(std::string& subject, const std::string& search, const std::string&
     }
 }
 
-bool valuesAreClose(double a, double b)
+bool valuesAreClose(const double a, const double b)
 {
     if (a == b) {
         return true;
     }
-    auto diff = std::fabs(a - b);
-    auto max = std::max(fabs(a), fabs(b));
-    auto rdiff = diff / max;
+    const auto diff = std::fabs(a - b);
+    const auto max = std::max(fabs(a), fabs(b));
+    const auto rdiff = diff / max;
     return rdiff <= std::numeric_limits<double>::epsilon();
 }
 
